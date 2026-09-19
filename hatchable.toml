@@ -4,3 +4,23 @@ providers = ["email"]
 
 [ai]
 required = true
+
+[db.tables.user_preferences]
+read = "own"
+write = "own"
+
+[db.tables.conversations]
+read = "own"
+write = "own"
+
+[db.tables.tasks]
+read = "own"
+write = "own"
+
+[db.tables.notes]
+read = "own"
+write = "own"
+
+[db.tables.reminders]
+read = "own"
+write = "own"
