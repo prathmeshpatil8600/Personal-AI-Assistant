@@ -1,0 +1,3 @@
+import { db,storage,knowledge } from "hatchable";
+export const access="member"; export const methods=["DELETE"];
+export default async function(req,res){const id=req.query?.id||req.params?.id;if(!id)return res.status(400).json({error:"Document id is required."});const d=await db.query("SELECT storage_key FROM documents WHERE id=$1 AND user_id=$2",[id,req.member.id]);if(!d.rows.length)return res.status(404).json({error:"Document not found."});await storage.del(d.rows[0].storage_key);const base=knowledge.base("documents_"+req.member.id,{dimensions:1536});await db.query("DELETE FROM documents WHERE id=$1 AND user_id=$2",[id,req.member.id]);try{await base.remove(id)}catch{}res.json({success:true})}
