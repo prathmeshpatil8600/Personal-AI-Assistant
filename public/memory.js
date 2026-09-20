@@ -1,0 +1,6 @@
+async function renderMemory(root){
+  const memories=await api("/memories/list");
+  root.innerHTML=shell("Memory","<div class=\"card\"><div class=\"section-head\"><div><h2>Long-term memory</h2><div class=\"label\">Facts and preferences you explicitly save for future conversations.</div></div><button class=\"primary\" onclick=\"newMemory()\">+ Add memory</button></div><div class=\"list\">"+(memories.length?memories.map(m=>'<div class="item"><div><b>'+esc(m.memory_key)+'</b><div class="label">'+esc(m.memory_value)+'</div><span class="pill">'+esc(m.category)+' · '+esc(m.source)+'</span></div><button class="ghost" onclick="deleteMemory(\''+m.id+'\')">Delete</button></div>').join(""):'<div class="empty">No saved memories yet.</div>')+"</div></div>");
+}
+async function newMemory(){const key=prompt("Memory name, e.g. preferred coding language");if(!key)return;const value=prompt("What should SecondBrain remember?");if(!value)return;await api("/memories/save",{method:"POST",body:JSON.stringify({memory_key:key,memory_value:value,category:"preference",source:"user",importance:4})});openSection("memory")}
+async function deleteMemory(id){await api("/memories/delete",{method:"POST",body:JSON.stringify({id})});openSection("memory")}

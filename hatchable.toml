@@ -40,3 +40,7 @@ write = "own"
 [db.tables.calendar_events]
 read = "own"
 write = "own"
+
+[db.tables.memories]
+read = "own"
+write = "own"
