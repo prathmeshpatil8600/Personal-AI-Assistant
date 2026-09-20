@@ -21,7 +21,8 @@ export default async function(req,res){
       SELECT 'event',id,title,description,start_at FROM calendar_events
       WHERE title ILIKE $1 OR description ILIKE $1 OR location ILIKE $1
       UNION ALL
-      SELECT 'conversation',id,title,content,created_at FROM conversation_messages cm
+      SELECT 'conversation',cm.id,c.title,cm.content,cm.created_at
+      FROM conversation_messages cm
       JOIN conversations c ON c.id=cm.conversation_id
       WHERE cm.content ILIKE $1
       UNION ALL
