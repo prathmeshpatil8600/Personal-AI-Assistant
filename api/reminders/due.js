@@ -1,0 +1,6 @@
+import { db } from "hatchable";
+export const access="member"; export const methods=["GET"];
+export default async function(req,res){
+ const r=await db.query("SELECT id,title,message,remind_at,recurrence,status FROM reminders WHERE user_id=$1 AND status='SCHEDULED' AND remind_at <= now() ORDER BY remind_at LIMIT 50",[req.member.id]);
+ res.json(r.rows);
+}

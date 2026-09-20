@@ -28,3 +28,15 @@ write = "own"
 [db.tables.reminders]
 read = "own"
 write = "own"
+
+[db.tables.documents]
+read = "own"
+write = "own"
+
+[db.tables.document_chunks]
+read = "own"
+write = "own"
+
+[db.tables.calendar_events]
+read = "own"
+write = "own"
