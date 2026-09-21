@@ -60,3 +60,7 @@ schedule = "0 * * * *"
 [[cron]]
 path = "/api/jobs/daily-stats"
 schedule = "10 0 * * *"
+
+[[cron]]
+path = "/api/jobs/daily-briefing"
+schedule = "30 6 * * *"
