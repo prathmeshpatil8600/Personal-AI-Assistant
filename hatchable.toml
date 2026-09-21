@@ -44,3 +44,19 @@ write = "own"
 [db.tables.memories]
 read = "own"
 write = "own"
+
+[db.tables.assistant_notifications]
+read = "own"
+write = "own"
+
+[db.tables.productivity_daily]
+read = "own"
+write = "own"
+
+[[cron]]
+path = "/api/jobs/hourly-reminders"
+schedule = "0 * * * *"
+
+[[cron]]
+path = "/api/jobs/daily-stats"
+schedule = "10 0 * * *"
