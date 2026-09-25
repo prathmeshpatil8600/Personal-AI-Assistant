@@ -3,7 +3,15 @@ enabled = true
 providers = ["email"]
 
 [ai]
-required = true
+required = false
+providers = ["google", "anthropic"]
+description = "Gemini-first AI with Groq fallback. Claude remains optional for later."
+
+[[secret]]
+name = "GROQ_API_KEY"
+provider = "custom"
+required = false
+description = "Optional Groq API key used as the second AI provider when Gemini is unavailable."
 
 [db.tables.user_preferences]
 read = "own"
@@ -53,6 +61,14 @@ write = "own"
 read = "own"
 write = "own"
 
+[db.tables.goals]
+read = "own"
+write = "own"
+
+[db.tables.habits]
+read = "own"
+write = "own"
+
 [[cron]]
 path = "/api/jobs/hourly-reminders"
 schedule = "0 * * * *"
@@ -64,3 +80,7 @@ schedule = "10 0 * * *"
 [[cron]]
 path = "/api/jobs/daily-briefing"
 schedule = "30 6 * * *"
+
+[[cron]]
+path = "/api/jobs/weekly-review"
+schedule = "45 6 * * 1"

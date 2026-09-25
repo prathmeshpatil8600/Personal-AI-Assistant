@@ -1,0 +1,12 @@
+CREATE TABLE goals (
+ id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+ user_id TEXT NOT NULL,
+ title TEXT NOT NULL,
+ description TEXT NOT NULL DEFAULT '',
+ category TEXT NOT NULL DEFAULT 'GENERAL',
+ target_date DATE,
+ status TEXT NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','COMPLETED','PAUSED','ARCHIVED')),
+ progress_percent INTEGER NOT NULL DEFAULT 0 CHECK (progress_percent BETWEEN 0 AND 100),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+)

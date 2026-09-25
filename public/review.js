@@ -1,0 +1,7 @@
+async function renderReview(root){
+ const d=await api("/review/weekly");
+ const sections=d.review.sections.map(function(s){return '<div class="item"><div><b>'+esc(s.title)+'</b><div class="label">'+esc(s.text)+'</div></div></div>'}).join("");
+ const goals=d.data.goals.length?d.data.goals.map(function(g){return '<div class="item"><span>'+esc(g.title)+'</span><span class="pill">'+g.progress_percent+'%</span></div>'}).join(""):'<div class="empty">Create goals to track longer-term progress.</div>';
+ const body='<div class="card"><div class="eyebrow">Last 7 days</div><div class="review-stats"><div><b>'+d.data.stats.tasks_created+'</b><span>created</span></div><div><b>'+d.data.stats.tasks_completed+'</b><span>completed</span></div><div><b>'+d.data.stats.tasks_overdue+'</b><span>overdue</span></div><div><b>'+d.data.stats.events_count+'</b><span>events</span></div></div></div><div class="section card"><div class="section-head"><h2>'+esc(d.review.summary||"Weekly review")+'</h2><span class="pill">'+(d.review.ai_available?"AI reviewed":"Structured review")+'</span></div><div class="list">'+sections+'</div></div><div class="section card"><h2>Goals at a glance</h2><div class="list">'+goals+'</div></div>';
+ root.innerHTML=shell("Weekly Review",body);
+}
