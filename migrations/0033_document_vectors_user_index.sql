@@ -1,1 +1,0 @@
-CREATE INDEX IF NOT EXISTS idx_document_vectors_user ON document_vectors(user_id)

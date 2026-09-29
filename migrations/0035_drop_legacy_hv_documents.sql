@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS _hv_documents_9922214

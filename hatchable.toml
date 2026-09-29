@@ -2,62 +2,16 @@
 enabled = true
 providers = ["email"]
 
-[mcp]
-enabled = true
-
 [ai]
 required = false
 providers = ["google", "anthropic"]
-description = "Gemini 3.8 Flash primary with Groq fallback. Claude remains optional for later."
+description = "Gemini-first AI with Groq fallback. Claude remains optional for later."
 
 [[secret]]
 name = "GROQ_API_KEY"
 provider = "custom"
 required = false
 description = "Optional Groq API key used as the second AI provider when Gemini is unavailable."
-
-[[secret]]
-name = "GOOGLE_API_KEY"
-provider = "custom"
-required = false
-expose = true
-description = "Google API key used by Gemini generation, PDF extraction, and embedding runtimes."
-
-[[secret]]
-name = "GOOGLE_OAUTH_CLIENT_ID"
-provider = "custom"
-required = false
-description = "Google OAuth 2.0 Web application client ID for Gmail, Calendar, and Drive connections."
-
-[[secret]]
-name = "GOOGLE_OAUTH_CLIENT_SECRET"
-provider = "custom"
-required = false
-description = "Google OAuth 2.0 Web application client secret. Stored server-side only."
-
-[[secret]]
-name = "GOOGLE_OAUTH_ENCRYPTION_KEY"
-provider = "custom"
-required = false
-description = "Long random secret used to encrypt Google refresh tokens at rest."
-
-[[secret]]
-name = "GITHUB_CLIENT_ID"
-provider = "custom"
-required = false
-description = "GitHub App client ID used for the SecondBrain GitHub connection."
-
-[[secret]]
-name = "GITHUB_CLIENT_SECRET"
-provider = "custom"
-required = false
-description = "GitHub App client secret used server-side for OAuth token exchange."
-
-[[secret]]
-name = "GITHUB_OAUTH_ENCRYPTION_KEY"
-provider = "custom"
-required = false
-description = "Long random server-only key used to encrypt GitHub tokens at rest."
 
 [db.tables.user_preferences]
 read = "own"
@@ -84,16 +38,12 @@ read = "own"
 write = "own"
 
 [db.tables.documents]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.document_chunks]
-read = "member"
-write = "member"
-
-[db.tables.document_vectors]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.calendar_events]
 read = "own"
@@ -118,46 +68,6 @@ write = "own"
 [db.tables.habits]
 read = "own"
 write = "own"
-
-[db.tables.habit_completions]
-read = "member"
-write = "member"
-
-[db.tables.ai_runs]
-read = "member"
-write = "member"
-
-[db.tables.tool_approvals]
-read = "member"
-write = "member"
-
-[db.tables.tool_runs]
-read = "member"
-write = "member"
-
-[db.tables.mcp_connections]
-read = "member"
-write = "member"
-
-[db.tables.mcp_tool_registry]
-read = "member"
-write = "member"
-
-[db.tables.google_connections]
-read = "member"
-write = "member"
-
-[db.tables.google_oauth_states]
-read = "member"
-write = "member"
-
-[db.tables.github_connections]
-read = "member"
-write = "member"
-
-[db.tables.github_oauth_states]
-read = "member"
-write = "member"
 
 [[cron]]
 path = "/api/jobs/hourly-reminders"

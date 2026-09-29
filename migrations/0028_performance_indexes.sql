@@ -1,1 +1,0 @@
-CREATE INDEX IF NOT EXISTS idx_tasks_user_status_due ON tasks(user_id,status,due_at)

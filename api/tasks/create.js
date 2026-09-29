@@ -1,9 +1,11 @@
-import { db } from "hatchable";
+import { db, auth } from "hatchable";
 
-export const access = "member";
+export const access = "public";
 export const methods = ["POST"];
 
 export default async function (req, res) {
+  const user = await auth.requireUser(req, res);
+  if (!user) return;
   const body = req.body || {};
   const title = typeof body.title === "string" ? body.title.trim() : "";
   if (!title || title.length > 200) return res.status(400).json({success:false,error:{code:"INVALID_TITLE",message:"Title is required and must be 200 characters or fewer."}});
@@ -13,7 +15,7 @@ export default async function (req, res) {
   if (dueAt && Number.isNaN(dueAt.getTime())) return res.status(400).json({success:false,error:{code:"INVALID_DUE_DATE",message:"Invalid due date."}});
   const { rows } = await db.query(
     "INSERT INTO tasks (user_id,title,description,priority,due_at) VALUES ($1,$2,$3,$4,$5) RETURNING id,title,description,priority,status,due_at,created_at,updated_at",
-    [req.member.id,title,description,priority,dueAt]
+    [user.id,title,description,priority,dueAt]
   );
   res.status(201).json(rows[0]);
 }

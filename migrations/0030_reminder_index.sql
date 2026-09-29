@@ -1,1 +1,0 @@
-CREATE INDEX IF NOT EXISTS idx_reminders_user_status_time ON reminders(user_id,status,remind_at)
