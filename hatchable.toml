@@ -13,6 +13,12 @@ provider = "custom"
 required = false
 description = "Optional Groq API key used as the second AI provider when Gemini is unavailable."
 
+[[secret]]
+name = "OPENAI_API_KEY"
+provider = "custom"
+required = false
+description = "OpenAI API key used by Hatchable embeddings for document RAG."
+
 [db.tables.user_preferences]
 read = "own"
 write = "own"
