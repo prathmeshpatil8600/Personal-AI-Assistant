@@ -20,6 +20,13 @@ required = false
 description = "OpenAI API key used by Hatchable embeddings for document RAG."
 expose = true
 
+[[secret]]
+name = "GOOGLE_API_KEY"
+provider = "custom"
+required = false
+expose = true
+description = "Google API key used by the Gemini embedding runtime."
+
 [db.tables.user_preferences]
 read = "own"
 write = "own"
