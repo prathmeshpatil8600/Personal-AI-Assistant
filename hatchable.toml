@@ -18,6 +18,7 @@ name = "OPENAI_API_KEY"
 provider = "custom"
 required = false
 description = "OpenAI API key used by Hatchable embeddings for document RAG."
+expose = true
 
 [db.tables.user_preferences]
 read = "own"
