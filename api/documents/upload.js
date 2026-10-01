@@ -1,4 +1,5 @@
-import { db, storage, ai, knowledge } from "hatchable";
+import { db, storage, knowledge } from "hatchable";
+import { embedText } from "../../lib/openai-embed.js";
 export const access="member";
 export const methods=["POST"];
 
@@ -21,7 +22,7 @@ export default async function(req,res){
   const parts=chunks(text);
   for(let i=0;i<parts.length;i++)await db.query("INSERT INTO document_chunks(document_id,user_id,chunk_index,content) VALUES($1,$2,$3,$4)",[doc.id,member.id,i,parts[i]]);
   const base=knowledge.base("documents_"+member.id,{dimensions:1536});
-  for(let i=0;i<parts.length;i++){const emb=await ai.embed(parts[i]);await base.add({id:doc.id+":"+i,vector:emb.embedding,content:parts[i],metadata:{document_id:doc.id,user_id:member.id,chunk_index:i,title}})}
+  for(let i=0;i<parts.length;i++){const vector=await embedText(parts[i]);await base.add({id:doc.id+":"+i,vector,content:parts[i],metadata:{document_id:doc.id,user_id:member.id,chunk_index:i,title}})}
   await db.query("UPDATE documents SET status='READY',updated_at=now() WHERE id=$1 AND user_id=$2",[doc.id,member.id]);
   res.status(201).json({...doc,status:"READY",chunks:parts.length});
  }catch(e){
