@@ -59,6 +59,10 @@ write = "member"
 read = "member"
 write = "member"
 
+[db.tables.document_vectors]
+read = "member"
+write = "member"
+
 [db.tables.calendar_events]
 read = "own"
 write = "own"
