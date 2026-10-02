@@ -20,8 +20,8 @@ export default async function(req,res){
  await db.query("INSERT INTO conversation_messages(conversation_id,user_id,role,content) VALUES($1,$2,'user',$3)",[conversationId,userId,message]);
 
  const h=await db.query("SELECT role,content FROM conversation_messages WHERE conversation_id=$1 AND user_id=$2 ORDER BY created_at DESC LIMIT 30",[conversationId,userId]);
- const p=await db.query("SELECT preferred_language,response_style FROM user_preferences WHERE user_id=$1",[userId]);
- const pref=p.rows[0]||{preferred_language:"English",response_style:"concise"};
+ const p=await db.query("SELECT preferred_language,response_style,timezone FROM user_preferences WHERE user_id=$1",[userId]);
+ const pref=p.rows[0]||{preferred_language:"English",response_style:"concise",timezone:"UTC"};
  const memories=await db.query("SELECT category,memory_key,memory_value,importance FROM memories WHERE user_id=$1 ORDER BY importance DESC,updated_at DESC LIMIT 20",[userId]);
  const memoryContext=memories.rows.length?memories.rows.map(m=>"- "+m.memory_key+": "+m.memory_value).join("\n"):"No saved memories.";
  const messages=h.rows.reverse().map(x=>({role:x.role==="tool"?"assistant":x.role,content:x.content}));
@@ -32,7 +32,7 @@ export default async function(req,res){
   userId,
   maxSteps:10,
   system:`You are SecondBrain, a practical personal AI assistant.
-User preferences: language=${pref.preferred_language}; response style=${pref.response_style}.
+User preferences: language=${pref.preferred_language}; response style=${pref.response_style}; timezone=${pref.timezone}. Interpret relative dates and times in this timezone unless the user specifies another timezone.
 Known long-term memory:
 ${memoryContext}
 Use workspace tools when the answer depends on live data. Use memory tools when the user asks what you remember or explicitly asks you to remember something. Use search_workspace for broad cross-module retrieval. Use create_task/create_reminder only when the user explicitly asks for an action. Never claim an action was completed unless a tool actually completed it. Keep responses concise unless the user preference requests detail.`,
