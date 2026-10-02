@@ -52,12 +52,12 @@ read = "own"
 write = "own"
 
 [db.tables.documents]
-read = "own"
-write = "own"
+read = "member"
+write = "member"
 
 [db.tables.document_chunks]
-read = "own"
-write = "own"
+read = "member"
+write = "member"
 
 [db.tables.calendar_events]
 read = "own"
