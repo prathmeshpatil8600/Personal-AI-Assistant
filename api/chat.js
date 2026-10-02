@@ -37,7 +37,7 @@ Known long-term memory:
 ${memoryContext}
 Use workspace tools when the answer depends on live data. Use memory tools when the user asks what you remember or explicitly asks you to remember something. Use search_workspace for broad cross-module retrieval. Use create_task/create_reminder only when the user explicitly asks for an action. Never claim an action was completed unless a tool actually completed it. Keep responses concise unless the user preference requests detail.`,
   messages,
-  tools:createAssistantTools(userId)
+  tools:createAssistantTools(userId,{conversationId})
  });
 
  await db.query("INSERT INTO conversation_messages(conversation_id,user_id,role,content,tool_calls) VALUES($1,$2,'assistant',$3,$4)",[conversationId,userId,result.text||"",JSON.stringify(result.steps||[])]);
