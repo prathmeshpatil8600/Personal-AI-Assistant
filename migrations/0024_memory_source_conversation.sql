@@ -1,0 +1,1 @@
+ALTER TABLE memories ADD COLUMN IF NOT EXISTS source_conversation_id UUID
