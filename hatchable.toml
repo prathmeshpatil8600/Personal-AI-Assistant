@@ -87,6 +87,10 @@ write = "own"
 read = "own"
 write = "own"
 
+[db.tables.ai_runs]
+read = "member"
+write = "member"
+
 [db.tables.tool_approvals]
 read = "member"
 write = "member"
