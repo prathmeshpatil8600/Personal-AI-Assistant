@@ -1,5 +1,5 @@
 import { db } from "hatchable";
-import { embedText } from "../../lib/openai-embed.js";
+import { embedText } from "../../lib/gemini-embed.js";
 import { generateText } from "../../lib/ai-router.js";
 export const access="member"; export const methods=["POST"];
 function vec(v){return "["+v.join(",")+"]"}

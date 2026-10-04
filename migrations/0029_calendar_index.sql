@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_calendar_user_start ON calendar_events(user_id,start_at)

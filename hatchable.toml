@@ -5,7 +5,7 @@ providers = ["email"]
 [ai]
 required = false
 providers = ["google", "anthropic"]
-description = "Gemini-first AI with Groq fallback. Claude remains optional for later."
+description = "Gemini 3.8 Flash primary with Groq fallback. Claude remains optional for later."
 
 [[secret]]
 name = "GROQ_API_KEY"
@@ -14,18 +14,11 @@ required = false
 description = "Optional Groq API key used as the second AI provider when Gemini is unavailable."
 
 [[secret]]
-name = "OPENAI_API_KEY"
-provider = "custom"
-required = false
-description = "OpenAI API key used by Hatchable embeddings for document RAG."
-expose = true
-
-[[secret]]
 name = "GOOGLE_API_KEY"
 provider = "custom"
 required = false
 expose = true
-description = "Google API key used by the Gemini embedding runtime."
+description = "Google API key used by Gemini generation, PDF extraction, and embedding runtimes."
 
 [db.tables.user_preferences]
 read = "own"
@@ -86,6 +79,10 @@ write = "own"
 [db.tables.habits]
 read = "own"
 write = "own"
+
+[db.tables.habit_completions]
+read = "member"
+write = "member"
 
 [db.tables.ai_runs]
 read = "member"
