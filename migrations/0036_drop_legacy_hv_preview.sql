@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS _hv_documents_preview_member

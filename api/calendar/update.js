@@ -1,4 +1,5 @@
 import { db } from "hatchable";
+import { normalizeRecurrence } from "../../lib/recurrence.js";
 export const access="member"; export const methods=["PATCH"];
 export default async function(req,res){
  const id=req.query?.id||req.params?.id;
@@ -8,6 +9,8 @@ export default async function(req,res){
   if((k==="start_at"||k==="end_at")&&b[k]!==null){
    const dt=new Date(b[k]);if(Number.isNaN(dt.getTime()))return res.status(400).json({error:"Invalid event time."});
    values.push(dt);
+  }else if(k==="recurrence"){
+   try{values.push(normalizeRecurrence(b[k]))}catch(e){return res.status(400).json({error:e.message})}
   }else values.push(b[k]);
   fields.push(k+" = $"+values.length);
  }
