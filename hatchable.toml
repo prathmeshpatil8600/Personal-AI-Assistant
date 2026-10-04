@@ -2,6 +2,9 @@
 enabled = true
 providers = ["email"]
 
+[mcp]
+enabled = true
+
 [ai]
 required = false
 providers = ["google", "anthropic"]
@@ -93,6 +96,14 @@ read = "member"
 write = "member"
 
 [db.tables.tool_runs]
+read = "member"
+write = "member"
+
+[db.tables.mcp_connections]
+read = "member"
+write = "member"
+
+[db.tables.mcp_tool_registry]
 read = "member"
 write = "member"
 
