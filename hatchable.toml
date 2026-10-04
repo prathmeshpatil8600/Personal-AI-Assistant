@@ -41,6 +41,24 @@ provider = "custom"
 required = false
 description = "Long random secret used to encrypt Google refresh tokens at rest."
 
+[[secret]]
+name = "GITHUB_CLIENT_ID"
+provider = "custom"
+required = false
+description = "GitHub App client ID used for the SecondBrain GitHub connection."
+
+[[secret]]
+name = "GITHUB_CLIENT_SECRET"
+provider = "custom"
+required = false
+description = "GitHub App client secret used server-side for OAuth token exchange."
+
+[[secret]]
+name = "GITHUB_OAUTH_ENCRYPTION_KEY"
+provider = "custom"
+required = false
+description = "Long random server-only key used to encrypt GitHub tokens at rest."
+
 [db.tables.user_preferences]
 read = "own"
 write = "own"
@@ -130,6 +148,14 @@ read = "member"
 write = "member"
 
 [db.tables.google_oauth_states]
+read = "member"
+write = "member"
+
+[db.tables.github_connections]
+read = "member"
+write = "member"
+
+[db.tables.github_oauth_states]
 read = "member"
 write = "member"
 
