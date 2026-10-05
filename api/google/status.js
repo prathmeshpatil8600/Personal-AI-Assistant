@@ -8,5 +8,8 @@ export default async function(req,res){
   return res.json({connected:false});
  }
  const c=(await db.query("SELECT account_email,scopes,status,connected_at,last_used_at,last_error FROM google_connections WHERE user_id=$1 LIMIT 1",[req.member.id])).rows[0];
- res.json(c?{connected:c.status==="CONNECTED",...c}:{connected:false});
+ if(!c)return res.json({connected:false});
+ const required=["https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/calendar.events"];
+ const granted=Array.isArray(c.scopes)?c.scopes:[];const missing_write_scopes=required.filter(s=>!granted.includes(s));
+ res.json({connected:c.status==="CONNECTED",...c,reconnect_required:missing_write_scopes.length>0,missing_write_scopes});
 }

@@ -10,5 +10,5 @@ export default async function(req,res){
  }
  const row=(await db.query("SELECT login,status,connected_at,updated_at,last_used_at,last_error,access_token_expires_at,refresh_token_expires_at FROM github_connections WHERE user_id=$1 LIMIT 1",[userId])).rows[0];
  if(!row)return res.json({connected:false});
- res.json({connected:row.status==='CONNECTED',...row});
+ res.json({connected:row.status==='CONNECTED',...row,required_app_permissions:{metadata:'read',contents:'read',issues:'write',pull_requests:'read'},write_actions_require_approval:true});
 }

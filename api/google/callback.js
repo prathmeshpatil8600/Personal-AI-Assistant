@@ -19,7 +19,9 @@ export default async function(req,res){
   const toolRows=[
    ['google_search_gmail','Search connected Gmail read-only.','READ'],
    ['google_list_calendar','List connected Google Calendar events read-only.','READ'],
-   ['google_search_drive','Search connected Google Drive file metadata read-only.','READ']
+   ['google_search_drive','Search connected Google Drive file metadata read-only.','READ'],
+   ['google_send_gmail','Send email from connected Gmail after explicit approval.','SENSITIVE'],
+   ['google_create_calendar_event','Create a Google Calendar event after explicit approval.','SENSITIVE']
   ];
   for(const [name,description,risk] of toolRows){await db.query(`INSERT INTO mcp_tool_registry(user_id,connection_id,tool_name,provider,description,risk_level,enabled,last_seen_at) VALUES($1,$2,$3,'google',$4,$5,true,now()) ON CONFLICT(user_id,provider,tool_name) DO UPDATE SET connection_id=EXCLUDED.connection_id,description=EXCLUDED.description,risk_level=EXCLUDED.risk_level,enabled=true,last_seen_at=now(),updated_at=now()`,[req.member.id,connectionId,name,description,risk]);}
   res.send("Google account connected successfully. You can close this window and return to SecondBrain.");
