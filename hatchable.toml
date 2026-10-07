@@ -27,30 +27,35 @@ description = "Google API key used by Gemini generation, PDF extraction, and emb
 name = "GOOGLE_OAUTH_CLIENT_ID"
 provider = "custom"
 required = false
+expose = true
 description = "Google OAuth 2.0 Web application client ID for Gmail, Calendar, and Drive connections."
 
 [[secret]]
 name = "GOOGLE_OAUTH_CLIENT_SECRET"
 provider = "custom"
 required = false
+expose = true
 description = "Google OAuth 2.0 Web application client secret. Stored server-side only."
 
 [[secret]]
 name = "GOOGLE_OAUTH_ENCRYPTION_KEY"
 provider = "custom"
 required = false
+expose = true
 description = "Long random secret used to encrypt Google refresh tokens at rest."
 
 [[secret]]
 name = "GITHUB_CLIENT_ID"
 provider = "custom"
 required = false
+expose = true
 description = "GitHub App client ID used for the SecondBrain GitHub connection."
 
 [[secret]]
 name = "GITHUB_CLIENT_SECRET"
 provider = "custom"
 required = false
+expose = true
 description = "GitHub App client secret used server-side for OAuth token exchange."
 
 [[secret]]

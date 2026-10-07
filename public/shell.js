@@ -22,7 +22,7 @@ function mount(){const shell=document.querySelector('.shell');const sidebar=docu
 function bind(){document.querySelectorAll('.nav-item[data-section]').forEach(b=>b.addEventListener('click',()=>{window.openSection?.(b.dataset.section);closeMobile()}));
  document.getElementById('commandTrigger')?.addEventListener('click',openPalette);document.getElementById('mobileCommandBtn')?.addEventListener('click',openPalette);
  document.getElementById('mobileMenuBtn')?.addEventListener('click',openMobile);document.getElementById('sidebarClose')?.addEventListener('click',closeMobile);document.getElementById('mobileOverlay')?.addEventListener('click',closeMobile);
- document.getElementById('themeCycle')?.addEventListener('click',()=>{const cur=document.documentElement.dataset.theme||'system';const next=cur==='system'?'dark':cur==='dark'?'light':'system';window.SecondBrainTheme?.setTheme(next)});
+ document.getElementById('themeCycle')?.addEventListener('click',()=>{const cur=document.documentElement.dataset.theme||'system';const next=cur==='system'?'dark':cur==='dark'?'light':'system';window.SecondBrainDesign?.setTheme?.(next)});
  document.getElementById('commandBackdrop')?.addEventListener('mousedown',e=>{if(e.target.id==='commandBackdrop')closePalette()});
  const input=document.getElementById('commandInput');input?.addEventListener('input',renderCommands);input?.addEventListener('keydown',paletteKeys);
  document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette()}else if(e.key==='Escape'){closePalette();closeMobile()}});
