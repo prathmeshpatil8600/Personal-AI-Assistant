@@ -1,4 +1,5 @@
 import { db } from "hatchable";
+import { requireCountLimit,entitlementError } from "../../lib/entitlements.js";
 export const access="member";
 export const methods=["POST"];
 export default async function(req,res){
@@ -6,6 +7,8 @@ export default async function(req,res){
   const key=String(b.memory_key||"").trim();
   const value=String(b.memory_value||"").trim();
   if(!key||!value) return res.status(400).json({error:"memory_key and memory_value are required"});
+  const duplicate=(await db.query("SELECT id FROM memories WHERE user_id=$1 AND memory_key=$2 LIMIT 1",[req.member.id,key])).rows[0];
+  if(!duplicate){const existing=Number((await db.query("SELECT count(*)::int AS n FROM memories WHERE user_id=$1",[req.member.id])).rows[0]?.n||0);const countGate=await requireCountLimit(req.member.id,"max_memory_items",existing);if(!countGate.ok)return entitlementError(res,countGate)}
   const category=String(b.category||"general").trim().slice(0,80)||"general";
   const source=String(b.source||"user").trim().slice(0,80)||"user";
   const importance=Math.max(1,Math.min(5,Number.parseInt(b.importance,10)||3));

@@ -1,5 +1,6 @@
 import { db } from "hatchable";
 import { generateText } from "../../lib/ai-router.js";
+import { requireFeature,requireUnits } from "../../lib/entitlements.js";
 export const access="scheduler";
 export const methods=["POST"];
 export default async function(req,res){
@@ -7,6 +8,7 @@ export default async function(req,res){
  let created=0, failed=0;
  for(const u of users.rows){
   const uid=u.user_id;
+  const featureGate=await requireFeature(uid,"scheduled_briefings");const unitGate=await requireUnits(uid,1);if(!featureGate.ok||!unitGate.ok)continue;
   const [t,e,r]=await Promise.all([
    db.query("SELECT title,priority,status,due_at FROM tasks WHERE user_id=$1 AND status NOT IN ('COMPLETED','CANCELLED') AND (due_at IS NULL OR due_at < now()+interval '2 days') ORDER BY due_at NULLS LAST LIMIT 12",[uid]),
    db.query("SELECT title,start_at,end_at FROM calendar_events WHERE user_id=$1 AND status='SCHEDULED' AND start_at >= now() AND start_at < now()+interval '1 day' ORDER BY start_at",[uid]),

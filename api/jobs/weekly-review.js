@@ -1,5 +1,6 @@
 import { db } from "hatchable";
 import { generateText } from "../../lib/ai-router.js";
+import { requireFeature,requireUnits } from "../../lib/entitlements.js";
 export const access="scheduler";
 export const methods=["POST"];
 export default async function(req,res){
@@ -7,6 +8,7 @@ export default async function(req,res){
  const users=(await db.query("SELECT DISTINCT user_id FROM goals UNION SELECT DISTINCT user_id FROM tasks")).rows;
  let created=0;
  for(const u of users){
+  const featureGate=await requireFeature(u.user_id,"scheduled_briefings");const unitGate=await requireUnits(u.user_id,1);if(!featureGate.ok||!unitGate.ok)continue;
   const s=(await db.query("SELECT COALESCE(SUM(tasks_completed),0)::int completed,COALESCE(SUM(tasks_overdue),0)::int overdue FROM productivity_daily WHERE user_id=$1 AND stat_date>=CURRENT_DATE-6",[u.user_id])).rows[0];
   let message="Weekly review: "+s.completed+" tasks completed; "+s.overdue+" overdue.";
   try{

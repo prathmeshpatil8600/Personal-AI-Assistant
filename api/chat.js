@@ -1,6 +1,7 @@
 import { db } from "hatchable";
 import { generateText } from "../lib/ai-router.js";
 import { createAssistantTools } from "../lib/assistant-tools.js";
+import { requireFeature,requireUnits,entitlementError } from "../lib/entitlements.js";
 
 export const access="member";
 export const methods=["POST"];
@@ -31,6 +32,8 @@ async function maybeUpdateSummary(userId,conversationId,existingSummary,summariz
 export default async function(req,res){
  const userId=req.member.id,b=req.body||{},message=typeof b.message==="string"?b.message.trim():"";
  if(!message||message.length>12000)return res.status(400).json({error:"message is required (max 12,000 characters)."});
+ const featureGate=await requireFeature(userId,"chat");if(!featureGate.ok)return entitlementError(res,featureGate);
+ const unitGate=await requireUnits(userId,Math.max(1,Math.ceil(message.length/4000)));if(!unitGate.ok)return entitlementError(res,unitGate);
  let conversationId=b.conversation_id,conversation={summary:"",summarized_through_at:null};
  if(conversationId){
   const c=await db.query("SELECT id,summary,summarized_through_at FROM conversations WHERE id=$1 AND user_id=$2",[conversationId,userId]);

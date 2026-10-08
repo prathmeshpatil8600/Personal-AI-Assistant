@@ -1,10 +1,12 @@
 import { db } from "hatchable";
 import { exchangeGithubCode,encryptGithubSecret } from "../../lib/github-oauth.js";
+import { requireFeature } from "../../lib/entitlements.js";
 export const access="member"; export const methods=["GET"];
 export default async function(req,res){
+ const gate=await requireFeature(req.member.id,"github_integration");if(!gate.ok)return res.status(403).send("GitHub integration is not included in the current plan.");
  const code=String(req.query?.code||"");const state=String(req.query?.state||"");
  if(!code||!state)return res.status(400).send("Missing GitHub OAuth code or state.");
- const s=(await db.query("SELECT * FROM github_oauth_states WHERE state=$1 AND user_id=$2 AND expires_at>now() LIMIT 1",[state,req.member.id])).rows[0];
+ const s=(await db.query("DELETE FROM github_oauth_states WHERE state=$1 AND user_id=$2 AND expires_at>now() RETURNING *",[state,req.member.id])).rows[0];
  if(!s)return res.status(400).send("GitHub OAuth state is invalid or expired.");
  try{
   const token=await exchangeGithubCode({code,redirectUri:s.redirect_uri});
@@ -24,7 +26,6 @@ export default async function(req,res){
     VALUES($1,$2,$3,'github',$4,$5,true,'{}'::jsonb)
     ON CONFLICT(user_id,provider,tool_name) DO UPDATE SET connection_id=EXCLUDED.connection_id,description=EXCLUDED.description,risk_level=EXCLUDED.risk_level,enabled=true,last_seen_at=now(),updated_at=now()`,[req.member.id,conn.id,name,desc,risk]);
   }
-  await db.query("DELETE FROM github_oauth_states WHERE state=$1",[state]);
   res.send("GitHub connected successfully. You can close this window and return to SecondBrain.");
- }catch(e){await db.query("DELETE FROM github_oauth_states WHERE state=$1",[state]);res.status(500).send("GitHub connection failed: "+String(e.message||e).slice(0,500))}
+ }catch(e){res.status(500).send("GitHub connection failed: "+String(e.message||e).slice(0,500))}
 }

@@ -2,6 +2,7 @@ import { db, storage } from "hatchable";
 import { embedText } from "../../lib/gemini-embed.js";
 import { extractPdfText } from "../../lib/pdf-text.js";
 import { recordUsageEvent } from "../../lib/usage-meter.js";
+import { requireFeature,requireUnits,requireCountLimit,entitlementError } from "../../lib/entitlements.js";
 export const access="member";
 export const methods=["POST"];
 function decode(buffer){return new TextDecoder().decode(buffer)}
@@ -14,6 +15,9 @@ export default async function(req,res){
  const allowed=["text/plain","text/markdown","text/csv","application/json","text/html"];
  if(!isPdf&&!allowed.includes(file.contentType))return res.status(415).json({error:"Supported formats: PDF, TXT, Markdown, CSV, JSON, and HTML."});
  if((file.buffer?.length||0)>20*1024*1024)return res.status(413).json({error:"Document is too large. Maximum upload size is 20 MB."});
+ const featureGate=await requireFeature(member.id,"documents");if(!featureGate.ok)return entitlementError(res,featureGate);
+ const docCount=Number((await db.query("SELECT count(*)::int AS n FROM documents WHERE user_id=$1",[member.id])).rows[0]?.n||0);const countGate=await requireCountLimit(member.id,"max_documents",docCount);if(!countGate.ok)return entitlementError(res,countGate);
+ const unitGate=await requireUnits(member.id,Math.max(1,Math.ceil((file.buffer?.length||0)/(1024*1024))+1));if(!unitGate.ok)return entitlementError(res,unitGate);
  const title=filename.replace(/\.[^.]+$/," ").trim().slice(0,200),key="documents/"+member.id+"/"+crypto.randomUUID()+"-"+filename;
  await storage.put(key,file.buffer,file.contentType||"application/octet-stream");
  const doc=(await db.query("INSERT INTO documents(user_id,title,filename,content_type,storage_key,status) VALUES($1,$2,$3,$4,$5,'PROCESSING') RETURNING id,title,filename,status,created_at",[member.id,title,filename,file.contentType||"application/octet-stream",key])).rows[0];

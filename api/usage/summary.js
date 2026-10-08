@@ -10,6 +10,7 @@ export default async function(req,res){
          COALESCE(sum(output_tokens),0)::bigint output_tokens,
          COALESCE(sum(bytes_processed),0)::bigint bytes_processed,
          COALESCE(sum(item_count),0)::bigint items,
+         COALESCE(sum(quota_units),0)::bigint quota_units,
          COALESCE(sum(estimated_cost_microusd) FILTER (WHERE priced),0)::bigint estimated_cost_microusd,
          count(*) FILTER (WHERE NOT priced)::int unpriced_events
   FROM usage_events
@@ -21,6 +22,7 @@ export default async function(req,res){
          COALESCE(sum(output_tokens),0)::bigint output_tokens,
          COALESCE(sum(bytes_processed),0)::bigint bytes_processed,
          COALESCE(sum(item_count),0)::bigint items,
+         COALESCE(sum(quota_units),0)::bigint quota_units,
          COALESCE(sum(estimated_cost_microusd) FILTER (WHERE priced),0)::bigint estimated_cost_microusd,
          count(*) FILTER (WHERE NOT priced)::int unpriced_events
   FROM usage_events

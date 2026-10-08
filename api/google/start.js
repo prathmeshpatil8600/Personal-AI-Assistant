@@ -1,7 +1,9 @@
 import { db } from "hatchable";
 import { randomState, authorizationUrl } from "../../lib/google-oauth.js";
+import { requireFeature,entitlementError } from "../../lib/entitlements.js";
 export const access="member"; export const methods=["GET"];
 export default async function(req,res){
+ const gate=await requireFeature(req.member.id,"google_integration");if(!gate.ok)return entitlementError(res,gate);
  const proto=(req.headers?.["x-forwarded-proto"]||"https").split(",")[0].trim();
  const host=(req.headers?.["x-forwarded-host"]||req.headers?.host||"personal-ai-5c3q-draft.hatchable.site").split(",")[0].trim();
  const redirectUri=proto+"://"+host+"/api/google/callback";

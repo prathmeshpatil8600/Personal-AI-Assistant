@@ -1,7 +1,9 @@
 import { db } from "hatchable";
 import { randomGithubState,githubAuthorizationUrl } from "../../lib/github-oauth.js";
+import { requireFeature,entitlementError } from "../../lib/entitlements.js";
 export const access="member"; export const methods=["GET"];
 export default async function(req,res){
+ const gate=await requireFeature(req.member.id,"github_integration");if(!gate.ok)return entitlementError(res,gate);
  const host=req.headers?.host||"personal-ai-5c3q-draft.hatchable.site";
  const proto=String(req.headers?.['x-forwarded-proto']||"https").split(',')[0].trim()||"https";
  const redirectUri=proto+"://"+host+"/api/github/callback";

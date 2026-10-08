@@ -1,7 +1,9 @@
 import { db } from "hatchable";
 import { exchangeCode, encryptSecret, googleFetch } from "../../lib/google-oauth.js";
+import { requireFeature } from "../../lib/entitlements.js";
 export const access="member"; export const methods=["GET"];
 export default async function(req,res){
+ const gate=await requireFeature(req.member.id,"google_integration");if(!gate.ok)return res.status(403).send("Google integration is not included in the current plan.");
  const code=String(req.query?.code||""),state=String(req.query?.state||"");
  if(!code||!state)return res.status(400).send("Missing Google OAuth code or state.");
  const s=(await db.query("DELETE FROM google_oauth_states WHERE state=$1 AND user_id=$2 AND expires_at>now() RETURNING redirect_uri",[state,req.member.id])).rows[0];
