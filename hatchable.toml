@@ -164,6 +164,14 @@ write = "member"
 read = "member"
 write = "member"
 
+[db.tables.usage_events]
+read = "member"
+write = "member"
+
+[db.tables.usage_rate_cards]
+read = "member"
+write = "member"
+
 [[cron]]
 path = "/api/jobs/hourly-reminders"
 schedule = "0 * * * *"

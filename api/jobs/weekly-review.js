@@ -10,7 +10,7 @@ export default async function(req,res){
   const s=(await db.query("SELECT COALESCE(SUM(tasks_completed),0)::int completed,COALESCE(SUM(tasks_overdue),0)::int overdue FROM productivity_daily WHERE user_id=$1 AND stat_date>=CURRENT_DATE-6",[u.user_id])).rows[0];
   let message="Weekly review: "+s.completed+" tasks completed; "+s.overdue+" overdue.";
   try{
-   const r=await generateText({model:"google.gemini",purpose:"weekly_briefing_job",maxSteps:2,system:"Write one concise weekly productivity notification from supplied stats only.",prompt:JSON.stringify(s)});
+   const r=await generateText({model:"google.gemini",purpose:"weekly_briefing_job",userId:u.user_id,maxSteps:2,system:"Write one concise weekly productivity notification from supplied stats only.",prompt:JSON.stringify(s)});
    if(r.text)message=r.text.trim();
   }catch(e){}
   await db.query("INSERT INTO assistant_notifications(user_id,type,title,message,source_key) VALUES($1,'WEEKLY_REVIEW','Weekly review',$2,$3) ON CONFLICT(user_id,source_key) DO UPDATE SET message=EXCLUDED.message,read_at=NULL",[u.user_id,message,"weekly-review:"+new Date().toISOString().slice(0,10)]);

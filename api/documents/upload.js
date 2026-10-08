@@ -1,6 +1,7 @@
 import { db, storage } from "hatchable";
 import { embedText } from "../../lib/gemini-embed.js";
 import { extractPdfText } from "../../lib/pdf-text.js";
+import { recordUsageEvent } from "../../lib/usage-meter.js";
 export const access="member";
 export const methods=["POST"];
 function decode(buffer){return new TextDecoder().decode(buffer)}
@@ -25,6 +26,7 @@ export default async function(req,res){
    await db.query("INSERT INTO document_vectors(document_id,user_id,chunk_index,embedding) VALUES($1,$2,$3,$4::vector)",[doc.id,member.id,i,vec(vector)]);
   }
   await db.query("UPDATE documents SET status='READY',error_message=NULL,updated_at=now() WHERE id=$1 AND user_id=$2",[doc.id,member.id]);
+  await recordUsageEvent({userId:member.id,eventKey:"document-ingest:"+doc.id,eventType:"document_ingest",source:"document",provider:"google",model:isPdf?"pdf-extraction+gemini-embedding-001":"gemini-embedding-001",documentId:doc.id,bytesProcessed:file.buffer?.length||0,itemCount:parts.length,metadata:{content_type:file.contentType||null,is_pdf:isPdf,status:"COMPLETED"}});
   res.status(201).json({...doc,status:"READY",chunks:parts.length});
  }catch(e){
   await db.query("DELETE FROM document_vectors WHERE document_id=$1 AND user_id=$2",[doc.id,member.id]).catch(()=>{});
