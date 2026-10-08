@@ -37,7 +37,7 @@
   window.SecondBrainShell?.setContext("Integrations");
  };
  window.connectIntegration=async function(provider){
-  try{const r=await api("/"+provider+"/start");if(r?.authorization_url)location.href=r.authorization_url;else alert("Connection setup is incomplete.")}catch(e){alert(e.message)}
+  try{const r=await api("/"+provider+"/start");if(r?.authorization_url)location.href=r.authorization_url;else window.SecondBrainToast?.("Connection setup is incomplete.")}catch(e){window.SecondBrainToast?.(e.message)}
  };
  async function disconnectIntegration(provider){
   const name=defs[provider].name;
