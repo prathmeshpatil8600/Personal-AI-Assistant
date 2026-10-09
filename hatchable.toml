@@ -234,6 +234,18 @@ write = "member"
 read = "member"
 write = "member"
 
+[db.tables.addon_catalog]
+read = "member"
+write = "member"
+
+[db.tables.addon_orders]
+read = "member"
+write = "member"
+
+[db.tables.addon_grants]
+read = "member"
+write = "member"
+
 [[cron]]
 path = "/api/jobs/hourly-reminders"
 schedule = "0 * * * *"
@@ -241,6 +253,10 @@ schedule = "0 * * * *"
 [[cron]]
 path = "/api/jobs/billing-reconcile"
 schedule = "20 * * * *"
+
+[[cron]]
+path = "/api/jobs/addon-reconcile"
+schedule = "35 * * * *"
 
 [[cron]]
 path = "/api/jobs/daily-stats"

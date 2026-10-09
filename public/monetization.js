@@ -45,21 +45,22 @@
  }
 
  window.renderPlans=async function(root){
-  const [catalog,current,billing]=await Promise.all([api("/monetization/catalog"),api("/plan/status"),api("/billing/status")]);
-  monetizationState={catalog,current,billing};
+  const [catalog,current,billing,addons,addonHistory]=await Promise.all([api("/monetization/catalog"),api("/plan/status"),api("/billing/status"),api("/addons/catalog"),api("/addons/history")]);
+  monetizationState={catalog,current,billing,addons,addonHistory};
   const used=current.usage.used_units,total=current.usage.allowance_units,percent=pct(used,total);
   root.innerHTML='<div class="top pricing-top"><div><div class="eyebrow">Plans & billing</div><h1>Choose how much SecondBrain can do for you</h1><p class="label">Free answers when you ask. Plus connects your personal workspace. Pro is designed for deeper AI and automation.</p></div><div class="cycle-toggle" role="group" aria-label="Billing cycle"><button data-cycle="MONTHLY" class="'+(billingCycle==="MONTHLY"?"active":"")+'">Monthly</button><button data-cycle="ANNUAL" class="'+(billingCycle==="ANNUAL"?"active":"")+'">Annual</button></div></div>'+
   '<div class="pricing-notice"><b>Test pricing</b><span>These are provisional launch prices. We will finalize them after B1/B5 cost and margin data is strong enough.</span></div>'+
   '<section class="usage-card card"><div class="usage-copy"><div><span class="eyebrow">Current plan</span><h2>'+esc(current.plan.name)+'</h2></div><div class="usage-numbers"><b>'+used.toLocaleString("en-IN")+'</b><span>of '+total.toLocaleString("en-IN")+' monthly units</span></div></div><div class="usage-track"><span style="width:'+percent+'%"></span></div><div class="usage-foot"><span>'+percent+'% used</span><span>'+current.usage.remaining_units.toLocaleString("en-IN")+' remaining · resets '+new Date(current.period.end).toLocaleDateString()+'</span></div></section>'+
   '<div class="pricing-grid">'+catalog.plans.map(p=>planCard(p,current,billing.subscription)).join("")+'</div>'+
   '<section class="plan-principles"><div><b>No “unlimited AI” promise</b><span>Usage allowances protect reliability and keep costs sustainable.</span></div><div><b>Upgrade only when useful</b><span>Your existing data stays with you when your plan changes.</span></div><div><b>Sensitive actions stay approved</b><span>Higher plans do not bypass the approval system.</span></div></section>'+
-  billingCard(billing.subscription);
+  billingCard(billing.subscription)+renderAddonSection(addons,addonHistory,current);
 
   root.querySelectorAll("[data-cycle]").forEach(b=>b.onclick=()=>{billingCycle=b.dataset.cycle;renderPlans(root)});
   root.querySelectorAll(".plan-select[data-plan]").forEach(b=>b.onclick=()=>startUpgrade(b.dataset.plan,b));
   document.getElementById("refreshBilling")?.addEventListener("click",()=>refreshBilling(root));
   document.getElementById("resumeCheckout")?.addEventListener("click",()=>safeBillingRedirect(billing.subscription?.hosted_url));
   document.getElementById("cancelBilling")?.addEventListener("click",()=>cancelSubscription(root));
+  root.querySelectorAll("[data-addon]").forEach(b=>b.onclick=()=>startAddonPurchase(b.dataset.addon,b,root));
   window.SecondBrainShell?.setContext("Plans & Billing");
  };
 
@@ -88,6 +89,52 @@
   const v=await window.SecondBrainDialog?.({title:"Cancel subscription",eyebrow:"Billing",submit:"Cancel at period end",html:'<p>Your paid access will remain active until the current billing period ends. After that, your account returns to Free limits. Your workspace data is not deleted.</p>'});
   if(v===null||v===undefined)return;
   try{await api("/billing/cancel",{method:"POST",body:JSON.stringify({mode:"period_end"})});window.SecondBrainToast?.("Subscription set to cancel at period end");await renderPlans(root)}catch(e){window.SecondBrainToast?.(e.message)}
+ }
+
+ function addonEffectText(e){
+  const bits=[];
+  if(Number(e?.quota_units)>0)bits.push("+"+Number(e.quota_units).toLocaleString("en-IN")+" usage units");
+  if(Number(e?.max_documents)>0)bits.push("+"+Number(e.max_documents)+" document slots");
+  if(Array.isArray(e?.feature_flags)&&e.feature_flags.length)bits.push(e.feature_flags.map(featureLabel).join(", "));
+  return bits.join(" · ")||"Additional capacity";
+ }
+ function renderAddonSection(data,history,current){
+  const active=data?.active_effects||{},hasActive=Number(active.quota_units)>0||Number(active.max_documents)>0||(active.feature_flags||[]).length>0;
+  const cards=(data?.addons||[]).map(a=>'<article class="addon-card '+(!a.eligible?"locked":"")+'"><div><span class="plan-kicker">'+esc(a.display_name)+'</span><h3>'+esc(a.description)+'</h3></div><div class="addon-price"><b>'+money(a.price_inr)+'</b><small>one-time · test price</small></div><p class="addon-effect">'+esc(addonEffectText(a.effects))+'</p><p class="label">'+(a.validity_days?esc(a.validity_days+" days validity"):"No fixed expiry")+'</p><button class="secondary" data-addon="'+esc(a.code)+'" '+(!a.eligible||!data.billing_available?"disabled":"")+'>'+(a.eligible?(data.billing_available?"Buy add-on":"Razorpay setup pending"):"Not available on "+esc(current.plan.code))+'</button></article>').join("");
+  const recent=(history||[]).slice(0,6).map(h=>'<div class="addon-history-row"><div><b>'+esc(h.display_name)+'</b><small>'+new Date(h.created_at).toLocaleDateString()+'</small></div><span class="status-chip '+(h.status==="PAID"?"success":h.status==="REFUNDED"?"warning":"neutral")+'">'+esc(h.status)+'</span></div>').join("");
+  return '<section class="addon-section"><div class="section-head"><div><div class="eyebrow">Add-ons</div><h2>Need a temporary boost?</h2><p class="label">Add-ons increase capacity without changing your base plan.</p></div></div>'+
+   (hasActive?'<div class="active-addon-banner"><b>Active boosts</b><span>'+esc(addonEffectText(active))+'</span></div>':'')+
+   '<div class="addon-grid">'+cards+'</div>'+
+   '<div class="card addon-history"><div class="section-head"><h3>Recent add-on purchases</h3></div>'+(recent||'<div class="daily-empty compact">No add-on purchases yet.</div>')+'</div></section>';
+ }
+ function loadRazorpayCheckout(){
+  if(window.Razorpay)return Promise.resolve();
+  return new Promise((resolve,reject)=>{
+   const existing=document.querySelector('script[data-razorpay-checkout]');
+   if(existing){existing.addEventListener("load",resolve,{once:true});existing.addEventListener("error",reject,{once:true});return}
+   const s=document.createElement("script");s.src="https://checkout.razorpay.com/v1/checkout.js";s.async=true;s.dataset.razorpayCheckout="true";s.onload=resolve;s.onerror=()=>reject(new Error("Unable to load Razorpay checkout."));document.head.appendChild(s);
+  });
+ }
+ async function startAddonPurchase(code,button,root){
+  if(!code||button.disabled)return;
+  const old=button.textContent;button.disabled=true;button.textContent="Preparing…";
+  try{
+   const order=await api("/addons/create",{method:"POST",body:JSON.stringify({addon_code:code})});
+   await loadRazorpayCheckout();
+   const rz=new window.Razorpay({
+    key:order.key_id,order_id:order.order_id,amount:order.amount_paise,currency:order.currency,
+    name:"SecondBrain",description:order.addon?.display_name||"Add-on",
+    handler:async function(result){
+     try{
+      await api("/addons/verify",{method:"POST",body:JSON.stringify(result)});
+      window.SecondBrainToast?.("Add-on activated");
+      await renderPlans(root);
+     }catch(e){window.SecondBrainToast?.(e.message||"Payment verification failed.")}
+    },
+    modal:{ondismiss:function(){button.disabled=false;button.textContent=old}}
+   });
+   rz.open();
+  }catch(e){window.SecondBrainToast?.(e.message||"Unable to start add-on checkout.");button.disabled=false;button.textContent=old}
  }
 
  function openUpgradePrompt(detail){
