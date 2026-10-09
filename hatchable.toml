@@ -230,6 +230,10 @@ write = "member"
 read = "member"
 write = "member"
 
+[db.tables.business_daily_snapshots]
+read = "member"
+write = "member"
+
 [[cron]]
 path = "/api/jobs/hourly-reminders"
 schedule = "0 * * * *"
@@ -241,6 +245,10 @@ schedule = "20 * * * *"
 [[cron]]
 path = "/api/jobs/daily-stats"
 schedule = "10 0 * * *"
+
+[[cron]]
+path = "/api/jobs/business-snapshot"
+schedule = "25 0 * * *"
 
 [[cron]]
 path = "/api/jobs/daily-briefing"
