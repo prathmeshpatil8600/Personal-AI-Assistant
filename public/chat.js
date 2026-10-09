@@ -3,7 +3,7 @@ let pendingAttachment=null;
 
 async function chatApi(path,opts={}){
  const r=await fetch("/api"+path,{headers:{"Content-Type":"application/json",...(opts.headers||{})},...opts});
- if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||"Request failed")}
+ if(!r.ok){const e=await r.json().catch(()=>({}));if(e?.error==="entitlement_limit")window.dispatchEvent(new CustomEvent("secondbrain:entitlement",{detail:e}));throw new Error(e.message||e.error||"Request failed")}
  return r.json()
 }
 
