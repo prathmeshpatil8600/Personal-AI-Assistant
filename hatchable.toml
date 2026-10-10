@@ -246,6 +246,34 @@ write = "member"
 read = "member"
 write = "member"
 
+[db.tables.organizations]
+read = "member"
+write = "member"
+
+[db.tables.organization_memberships]
+read = "member"
+write = "member"
+
+[db.tables.organization_invites]
+read = "member"
+write = "member"
+
+[db.tables.organization_billing_accounts]
+read = "member"
+write = "member"
+
+[db.tables.organization_workspaces]
+read = "member"
+write = "member"
+
+[db.tables.organization_shared_items]
+read = "member"
+write = "member"
+
+[db.tables.organization_audit_log]
+read = "member"
+write = "member"
+
 [[cron]]
 path = "/api/jobs/hourly-reminders"
 schedule = "0 * * * *"
