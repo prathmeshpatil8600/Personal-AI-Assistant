@@ -62,6 +62,7 @@ description = "GitHub App client secret used server-side for OAuth token exchang
 name = "GITHUB_OAUTH_ENCRYPTION_KEY"
 provider = "custom"
 required = false
+expose = true
 description = "Long random server-only key used to encrypt GitHub tokens at rest."
 
 [[secret]]
@@ -271,6 +272,34 @@ read = "member"
 write = "member"
 
 [db.tables.organization_audit_log]
+read = "member"
+write = "member"
+
+[db.tables.developer_api_keys]
+read = "member"
+write = "member"
+
+[db.tables.developer_api_usage_daily]
+read = "member"
+write = "member"
+
+[db.tables.white_label_profiles]
+read = "member"
+write = "member"
+
+[db.tables.integration_marketplace]
+read = "member"
+write = "member"
+
+[db.tables.integration_installations]
+read = "member"
+write = "member"
+
+[db.tables.partner_codes]
+read = "member"
+write = "member"
+
+[db.tables.referral_attributions]
 read = "member"
 write = "member"
 
