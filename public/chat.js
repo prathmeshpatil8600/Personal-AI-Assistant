@@ -150,15 +150,17 @@ async function sendChat(e){
  let message=input.value.trim();if(!message)return;
  if(pendingAttachment)message+='\n\nI uploaded "'+pendingAttachment.filename+'" to my Documents knowledge base. Use it when relevant to this request.';
  input.value="";autoGrow(input);document.getElementById("slashMenu").hidden=true;
- appendUser(message);appendThinking();send.disabled=true;status.textContent="Thinking…";
+ appendUser(message);appendThinking();send.disabled=true;status.textContent="Thinking…";window.SecondBrainLiving?.setPresence?.("thinking","thinking");
  try{
   const d=await chatApi("/chat",{method:"POST",body:JSON.stringify({message,conversation_id:activeConversation})});
   activeConversation=d.conversation_id;pendingAttachment=null;renderAttachment();
   document.querySelector(".thinking-message")?.remove();
   appendAssistant(d.message,d.steps||[]);
+  const needsApproval=(d.steps||[]).some(s=>(s.toolCalls||[]).some(c=>c?.result?.approval_required));
+  window.SecondBrainLiving?.setPresence?.(needsApproval?"attention":"calm",needsApproval?"approval needed":"ready");
   status.textContent=(d.provider||"AI")+" · "+(d.model||"ready");
   loadConversations();window.SecondBrainShell?.refreshApprovals?.();
- }catch(err){document.querySelector(".thinking-message")?.remove();appendAssistant("I couldn't complete that request. "+err.message,[]);status.textContent="Error"}
+ }catch(err){document.querySelector(".thinking-message")?.remove();appendAssistant("I couldn't complete that request. "+err.message,[]);status.textContent="Error";window.SecondBrainLiving?.setPresence?.("attention","needs attention")}
  finally{send.disabled=false;input.focus()}
 }
 
