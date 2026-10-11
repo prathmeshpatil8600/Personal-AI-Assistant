@@ -1,6 +1,10 @@
 (()=> {
  const ENV_KEY="secondbrain.environment";
+ const MOTION_KEY="secondbrain.motion";
+ const DENSITY_KEY="secondbrain.density";
  const valid=new Set(["studio","calm","midnight","nature","minimal","focus"]);
+ const validMotion=new Set(["full","gentle","reduced"]);
+ const validDensity=new Set(["spacious","compact"]);
  function defaultEnvironment(){
   const h=new Date().getHours();
   if(h>=21||h<6)return "midnight";
@@ -14,6 +18,8 @@
   window.dispatchEvent(new CustomEvent("secondbrain:environment",{detail:{environment:env}}));
   return env;
  }
+ function applyMotion(value){const v=validMotion.has(value)?value:"full";localStorage.setItem(MOTION_KEY,v);document.documentElement.dataset.motion=v;return v}
+ function applyDensity(value){const v=validDensity.has(value)?value:"spacious";localStorage.setItem(DENSITY_KEY,v);document.documentElement.dataset.density=v;return v}
  function mountAmbient(){
   if(!document.querySelector(".living-background")){
    const bg=document.createElement("div");
@@ -47,8 +53,21 @@
  }
  const stored=localStorage.getItem(ENV_KEY);
  applyEnvironment(stored||defaultEnvironment());
- function start(){mountAmbient();const old=window.SecondBrainShell?.setContext;if(window.SecondBrainShell&&old&&!old.__livingWrapped){const wrapped=function(label){old.call(window.SecondBrainShell,label);markPageState(String(label||"").toLowerCase())};wrapped.__livingWrapped=true;window.SecondBrainShell.setContext=wrapped}}
+ applyMotion(localStorage.getItem(MOTION_KEY)||"full");
+ applyDensity(localStorage.getItem(DENSITY_KEY)||"spacious");
+ function start(){
+  mountAmbient();
+  if(!localStorage.getItem(MOTION_KEY)){
+   if(matchMedia("(prefers-reduced-motion: reduce)").matches)applyMotion("reduced");
+   else if(navigator.connection?.saveData)applyMotion("gentle");
+  }
+  const old=window.SecondBrainShell?.setContext;
+  if(window.SecondBrainShell&&old&&!old.__livingWrapped){const wrapped=function(label){old.call(window.SecondBrainShell,label);markPageState(String(label||"").toLowerCase())};wrapped.__livingWrapped=true;window.SecondBrainShell.setContext=wrapped}
+  markPageState(String(document.getElementById("contextSection")?.textContent||"Today").toLowerCase());
+  document.addEventListener("visibilitychange",()=>{document.documentElement.dataset.appVisible=document.hidden?"false":"true"});
+  document.documentElement.dataset.appVisible=document.hidden?"false":"true";
+ }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
- window.SecondBrainLiving={setEnvironment:applyEnvironment,getEnvironment:()=>document.documentElement.dataset.environment||defaultEnvironment(),environments:[...valid],setPresence,markPageState};
+ window.SecondBrainLiving={setEnvironment:applyEnvironment,getEnvironment:()=>document.documentElement.dataset.environment||defaultEnvironment(),environments:[...valid],setMotion:applyMotion,getMotion:()=>document.documentElement.dataset.motion||"full",setDensity:applyDensity,getDensity:()=>document.documentElement.dataset.density||"spacious",setPresence,markPageState};
  window.addEventListener("secondbrain:assistant-state",e=>setPresence(e.detail?.state,e.detail?.label));
 })();

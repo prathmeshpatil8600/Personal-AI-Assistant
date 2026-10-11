@@ -32,7 +32,8 @@ async function renderMemory(root){
 
 function memoryCard(m){
  const used=m.last_accessed_at?new Date(m.last_accessed_at).toLocaleDateString([],{month:"short",day:"numeric"}):"Not used yet";
- return '<article class="memory-card"><div class="memory-card-head"><span class="pill">'+esc(m.category||"general")+'</span><span class="memory-importance" title="Importance">'+("●".repeat(Math.max(1,Math.min(5,Number(m.importance)||3))))+'</span></div><h3>'+esc(m.memory_key)+'</h3><p>'+esc(m.memory_value)+'</p><div class="memory-meta"><span>Last used: '+esc(used)+'</span><span>'+(Number(m.access_count)||0)+' uses</span></div><div class="memory-actions"><button class="ghost" data-memory-edit="'+m.id+'">Edit</button><button class="ghost danger-text" data-memory-delete="'+m.id+'">Forget</button></div></article>';
+ const importance=Math.max(1,Math.min(5,Number(m.importance)||3));
+ return '<article class="memory-card living-memory-node" data-memory-group="'+esc(normalizeMemoryGroup(m.category))+'" data-importance="'+importance+'"><span class="memory-node-core" aria-hidden="true"></span><div class="memory-card-head"><span class="pill">'+esc(m.category||"general")+'</span><span class="memory-importance" title="Importance">'+("●".repeat(importance))+'</span></div><h3>'+esc(m.memory_key)+'</h3><p>'+esc(m.memory_value)+'</p><div class="memory-meta"><span>Last used: '+esc(used)+'</span><span>'+(Number(m.access_count)||0)+' uses</span></div><div class="memory-actions"><button class="ghost" data-memory-edit="'+m.id+'">Edit</button><button class="ghost danger-text" data-memory-delete="'+m.id+'">Forget</button></div></article>';
 }
 
 function memoryEditorHTML(){

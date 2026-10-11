@@ -169,3 +169,191 @@ h2{letter-spacing:-.035em}
   .card,.app-topbar,.living-presence,.sidebar{backdrop-filter:none;background:var(--surface)}
   .living-background{display:none}
 }
+
+/* Phase 18B · Living Today */
+.today-hero{
+  position:relative;overflow:hidden;
+  min-height:300px;
+  padding:clamp(28px,5vw,64px);
+  border:1px solid var(--living-line);
+  border-radius:34px;
+  background:
+    radial-gradient(circle at 82% 20%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 25rem),
+    linear-gradient(135deg,color-mix(in srgb,var(--living-surface-strong) 92%,transparent),color-mix(in srgb,var(--accent-soft) 42%,var(--living-surface)));
+  box-shadow:var(--living-depth);
+}
+.today-hero::before{
+  content:"";position:absolute;right:-80px;top:-120px;width:360px;height:360px;border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--accent) 15%,transparent);
+  box-shadow:0 0 0 42px color-mix(in srgb,var(--accent) 4%,transparent),0 0 0 86px color-mix(in srgb,var(--accent) 3%,transparent);
+  pointer-events:none;
+}
+.today-hero>div:first-child{position:relative;z-index:2;max-width:780px}
+.today-hero p{font-size:clamp(15px,1.6vw,18px);line-height:1.65;max-width:700px}
+.daily-score{
+  width:156px;height:156px;border:0;
+  background:color-mix(in srgb,var(--living-surface-strong) 78%,transparent);
+  backdrop-filter:blur(22px);
+  box-shadow:0 18px 50px rgba(30,44,37,.12),inset 0 0 0 1px var(--living-line);
+}
+.today-stats{gap:0;margin:16px 0 28px;border-top:1px solid var(--living-line);border-bottom:1px solid var(--living-line)}
+.today-stats button{
+  min-height:108px;border:0;border-radius:0;background:transparent;padding:18px 20px;
+  border-right:1px solid var(--living-line);box-shadow:none;
+}
+.today-stats button:last-child{border-right:0}
+.today-stats button:hover{background:color-mix(in srgb,var(--living-surface) 72%,transparent);transform:translateY(-3px);box-shadow:none}
+.today-grid{gap:22px}
+.today-panel{padding:24px;border:0;background:color-mix(in srgb,var(--living-surface) 74%,transparent);box-shadow:inset 0 0 0 1px var(--living-line)}
+.today-task{padding:14px 10px;border-radius:16px}
+.today-task:hover{background:color-mix(in srgb,var(--accent-soft) 42%,transparent);transform:translateX(3px)}
+.task-check{border-radius:50%}
+.timeline{position:relative}
+.timeline::before{content:"";position:absolute;left:72px;top:16px;bottom:16px;width:1px;background:linear-gradient(var(--accent),transparent)}
+.timeline-marker{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 11%,transparent),0 0 24px var(--living-glow)}
+.ai-brief-card{position:relative;overflow:hidden;background:linear-gradient(145deg,color-mix(in srgb,var(--accent-soft) 58%,var(--living-surface)),var(--living-surface))}
+.ai-brief-card::after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-90px;bottom:-90px;border:1px solid color-mix(in srgb,var(--accent) 14%,transparent)}
+.continue-card{background:color-mix(in srgb,var(--living-surface) 75%,transparent);border-color:var(--living-line);border-radius:18px}
+.continue-card:hover{transform:translateY(-4px) rotate(-.15deg);box-shadow:var(--living-depth-soft)}
+
+/* Phase 18C · Spatial Chat */
+.chat-top{margin-bottom:18px}
+.chat-v2{gap:18px}
+.chat-list-panel{
+  border:0;background:transparent;box-shadow:none;padding:6px;
+  backdrop-filter:none;
+}
+.chat-list-head{padding:8px 8px 12px}
+.conversation{border:1px solid transparent;border-radius:14px}
+.conversation:hover{border-color:var(--living-line);background:var(--living-surface)}
+.conversation.active{background:var(--living-surface-strong);border-color:color-mix(in srgb,var(--accent) 14%,var(--living-line));box-shadow:var(--living-depth-soft)}
+.chat-panel-v2{
+  position:relative;overflow:hidden;border:1px solid var(--living-line);border-radius:30px;
+  background:color-mix(in srgb,var(--living-surface-strong) 72%,transparent);
+  box-shadow:var(--living-depth);
+  backdrop-filter:blur(16px);
+}
+.chat-panel-v2::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 20% 0%,color-mix(in srgb,var(--accent) 7%,transparent),transparent 34rem);
+}
+.chat-messages{position:relative;background:transparent;padding:30px clamp(16px,4vw,56px)}
+.chat-empty{position:relative}
+.chat-empty::before{content:"";position:absolute;width:280px;height:280px;border-radius:50%;border:1px solid color-mix(in srgb,var(--accent) 10%,transparent);z-index:-1}
+.assistant-orb.large{border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent) 60%,white),var(--accent));box-shadow:0 0 0 16px color-mix(in srgb,var(--accent) 5%,transparent),0 0 60px var(--living-glow)}
+.message{max-width:900px;margin:24px auto}
+.assistant-message{grid-template-columns:38px minmax(0,1fr)}
+.assistant-avatar{border-radius:50%;background:transparent}
+.assistant-avatar span{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 9%,transparent),0 0 24px var(--living-glow)}
+.rich-response{font-size:15.5px;line-height:1.72}
+.assistant-message .message-body{
+  padding:2px 0 18px;
+  border-bottom:1px solid color-mix(in srgb,var(--living-line) 72%,transparent);
+}
+.user-content{border-radius:22px 22px 6px 22px;padding:13px 17px;box-shadow:0 10px 28px color-mix(in srgb,var(--accent) 12%,transparent)}
+.tool-activity{margin:2px 0 14px}
+.tool-row,.approval-inline{border-radius:14px;background:color-mix(in srgb,var(--surface-2) 72%,transparent);border-color:var(--living-line)}
+.composer-wrap{
+  background:linear-gradient(180deg,transparent 0,color-mix(in srgb,var(--living-surface-strong) 84%,transparent) 18%);
+  border-top:0;padding:22px 22px 14px;
+}
+.composer{
+  border:1px solid color-mix(in srgb,var(--accent) 13%,var(--living-line));border-radius:24px;
+  padding:9px 10px;background:var(--living-surface-strong);box-shadow:0 16px 50px rgba(23,35,30,.09);
+}
+.composer:focus-within{box-shadow:0 20px 56px rgba(23,35,30,.10),0 0 0 4px color-mix(in srgb,var(--focus) 8%,transparent)}
+.send-btn,.composer-icon{border-radius:50%}
+.thinking-message .message-body{border-bottom:0}
+.thinking-line>span:first-child{box-shadow:0 0 18px var(--living-glow-strong)}
+
+/* Phase 18D · Memory constellation */
+.memory-summary{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+  padding:0;border:0;background:transparent;backdrop-filter:none;
+}
+.memory-summary>div{padding:14px 20px;border-right:1px solid var(--living-line)}
+.memory-summary>div:last-child{border-right:0}
+.memory-summary b{font:700 30px var(--font-display);display:block}
+.memory-summary span{font-size:11px;color:var(--muted)}
+.memory-group{margin-top:34px;position:relative}
+.memory-group::before{content:"";position:absolute;left:9px;top:46px;bottom:-24px;width:1px;background:linear-gradient(color-mix(in srgb,var(--accent) 34%,transparent),transparent)}
+.memory-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding-left:26px;position:relative}
+.memory-group-head::before{content:"";position:absolute;left:4px;width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 8%,transparent),0 0 24px var(--living-glow)}
+.memory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding-left:26px}
+.living-memory-node{
+  position:relative;overflow:visible;
+  background:color-mix(in srgb,var(--living-surface) 82%,transparent);
+  border:1px solid var(--living-line);
+  border-radius:20px;padding:18px;
+  transform-origin:center;
+}
+.living-memory-node:hover{transform:translateY(-5px) scale(1.006);box-shadow:var(--living-depth-soft)}
+.memory-node-core{
+  position:absolute;left:-31px;top:28px;width:10px;height:10px;border-radius:50%;
+  background:color-mix(in srgb,var(--accent) calc(45% + 10% * var(--memory-weight,3)),white);
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 7%,transparent),0 0 20px var(--living-glow);
+}
+.living-memory-node[data-importance="4"]{--memory-weight:4;border-color:color-mix(in srgb,var(--accent) 18%,var(--living-line))}
+.living-memory-node[data-importance="5"]{--memory-weight:5;border-color:color-mix(in srgb,var(--accent) 28%,var(--living-line));box-shadow:0 8px 34px color-mix(in srgb,var(--accent) 6%,transparent)}
+.memory-card p{line-height:1.62}
+.memory-actions{opacity:.5;transition:opacity .2s ease}
+.memory-card:hover .memory-actions{opacity:1}
+
+/* Phase 18E · Workspace reinterpretation */
+body[data-living-section="goals & routines"] .progress,
+body[data-living-section="goals"] .progress{height:5px;background:color-mix(in srgb,var(--line) 64%,transparent)}
+body[data-living-section="goals & routines"] .progress span,
+body[data-living-section="goals"] .progress span{box-shadow:0 0 18px var(--living-glow)}
+body[data-living-section="documents"] #content>.top+ .card,
+body[data-living-section="calendar"] #content>.top+ .card,
+body[data-living-section="search"] #content>.top+ .card{
+  border-radius:28px;background:color-mix(in srgb,var(--living-surface) 80%,transparent);box-shadow:var(--living-depth-soft)
+}
+body[data-living-section="documents"] .item,
+body[data-living-section="calendar"] .item,
+body[data-living-section="search"] .search-result{
+  border-bottom-color:color-mix(in srgb,var(--living-line) 68%,transparent);
+  transition:transform .25s var(--living-ease),background .2s ease;
+}
+body[data-living-section="documents"] .item:hover,
+body[data-living-section="calendar"] .item:hover,
+body[data-living-section="search"] .search-result:hover{
+  transform:translateX(4px);background:color-mix(in srgb,var(--accent-soft) 24%,transparent)
+}
+
+/* Phase 18F · personalization */
+:root[data-motion="gentle"] *{animation-duration:calc(var(--transition,220ms) * 2)!important}
+:root[data-motion="gentle"] .living-aurora{animation-duration:48s!important;opacity:.16}
+:root[data-motion="reduced"] *,:root[data-motion="reduced"] *::before,:root[data-motion="reduced"] *::after{animation:none!important;transition-duration:.001ms!important}
+:root[data-motion="reduced"] .living-aurora{display:none}
+:root[data-app-visible="false"] .living-aurora,:root[data-app-visible="false"] .living-presence-orb,:root[data-app-visible="false"] .assistant-mark::before,:root[data-app-visible="false"] .assistant-mark::after{animation-play-state:paused!important}
+:root[data-density="compact"] .main{padding-top:18px}
+:root[data-density="compact"] .card{padding:16px}
+:root[data-density="compact"] .section{margin-top:18px}
+:root[data-density="compact"] .today-grid{gap:14px}
+:root[data-density="compact"] .message{margin:14px auto}
+
+/* Phase 18G · responsive/performance/accessibility polish */
+@media(max-width:1120px){.memory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){
+  .today-hero{min-height:auto;padding:24px;border-radius:24px}
+  .today-hero::before{opacity:.45}
+  .today-stats{grid-template-columns:1fr 1fr;border:0;gap:8px}
+  .today-stats button{border:1px solid var(--living-line)!important;border-radius:16px}
+  .memory-grid{grid-template-columns:1fr}
+  .memory-summary{grid-template-columns:1fr 1fr 1fr}
+  .memory-summary>div{padding:10px}
+  .chat-panel-v2{border-radius:22px}
+  .composer-wrap{padding:14px 10px 10px}
+}
+@media(max-width:480px){
+  .memory-summary{grid-template-columns:1fr}
+  .memory-summary>div{border-right:0;border-bottom:1px solid var(--living-line)}
+  .memory-summary>div:last-child{border-bottom:0}
+  .memory-group::before,.memory-node-core{display:none}
+  .memory-group-head,.memory-grid{padding-left:0}
+  .today-stats{grid-template-columns:1fr 1fr}
+}
+@media(prefers-reduced-transparency:reduce){
+  .sidebar,.app-topbar,.card,.chat-panel-v2,.composer,.living-presence{backdrop-filter:none!important;background:var(--surface)!important}
+}
