@@ -303,6 +303,14 @@ write = "member"
 read = "member"
 write = "member"
 
+[db.tables.ai_response_cache]
+read = "own"
+write = "own"
+
+[db.tables.ai_optimization_daily]
+read = "own"
+write = "own"
+
 [[cron]]
 path = "/api/jobs/hourly-reminders"
 schedule = "0 * * * *"
@@ -322,6 +330,10 @@ schedule = "10 0 * * *"
 [[cron]]
 path = "/api/jobs/business-snapshot"
 schedule = "25 0 * * *"
+
+[[cron]]
+path = "/api/jobs/ai-cache-cleanup"
+schedule = "40 0 * * *"
 
 [[cron]]
 path = "/api/jobs/daily-briefing"

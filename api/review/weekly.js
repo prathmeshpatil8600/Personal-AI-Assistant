@@ -16,7 +16,7 @@ export default async function(req,res){
   {title:"Goals",text:data.goals.length?data.goals.map(g=>g.title+" ("+g.progress_percent+"%)").join(", "):"No active goals yet."}
  ]};
  try{
-  const r=await generateText({model:"google.gemini",purpose:"weekly_review",maxSteps:2,system:"Review the supplied personal productivity data only. Return JSON object with summary and sections, where sections is an array of title/text objects. Be concise and actionable.",prompt:JSON.stringify(data)});
+  const r=await generateText({model:"google.gemini",purpose:"weekly_review",userId:uid,maxSteps:2,responseStyle:"concise",cacheTtlSeconds:900,system:"Review the supplied personal productivity data only. Return JSON object with summary and sections, where sections is an array of title/text objects. Be concise and actionable.",prompt:JSON.stringify(data)});
   const parsed=JSON.parse(r.text.replace(/^[\\s\\S]*?\{/,"{").replace(/\}[\\s\\S]*$/,"}"));
   if(parsed?.sections)review={...parsed,ai_available:true,provider:r.provider};
  }catch(e){}

@@ -17,7 +17,10 @@ export default async function(req,res){
   const r=await generateText({
    model:"google.gemini",
    purpose:"goal_planning",
+   userId:req.member.id,
    maxSteps:2,
+   responseStyle:"concise",
+   cacheTtlSeconds:900,
    system:"Create a short practical task plan for the user's goal. Return JSON array only with objects containing title and priority (HIGH, MEDIUM, LOW). Maximum 6 tasks.",
    prompt:JSON.stringify({title:g.title,description:g.description,category:g.category,target_date:g.target_date,progress:g.progress_percent})
   });

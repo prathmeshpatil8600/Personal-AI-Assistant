@@ -15,7 +15,8 @@ export default async function(req,res){
   userId:uid,
   maxSteps:3,
   system:"You are a practical productivity analyst. Analyze the user's supplied workspace data only. Return concise, actionable insights. Do not invent facts. Organize as: Priorities, Risks, Schedule, Suggested actions.",
-  messages:[{role:"user",content:JSON.stringify({tasks:tasks.rows,events:events.rows,stats:stats.rows})}]
+  messages:[{role:"user",content:JSON.stringify({tasks:tasks.rows,events:events.rows,stats:stats.rows})}],
+  responseStyle:"concise",cacheTtlSeconds:300
  });
  res.json({insights:result.text||"",generated_at:new Date().toISOString(),provider:result.provider,model:result.model});
 }
