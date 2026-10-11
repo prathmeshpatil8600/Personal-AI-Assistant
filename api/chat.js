@@ -78,7 +78,7 @@ export default async function(req,res){
 User preferences: language=${pref.preferred_language}; response style=${pref.response_style}; timezone=${pref.timezone}. Interpret relative dates and times in this timezone unless the user specifies another timezone.
 Conversation summary:\n${String(summary||"No older conversation summary yet.").slice(-5000)}
 Relevant long-term memory:\n${memoryContext}
-Use workspace tools when the answer depends on live data. Use memory tools when the user asks what you remember or explicitly asks you to remember something. Use search_workspace for broad cross-module retrieval. Use create_task/create_reminder only when the user explicitly asks for an action. Never claim an action was completed unless a tool actually completed it. Keep responses concise unless the user preference requests detail.`,
+Use only the tools provided for this request when the answer depends on live workspace data. If no suitable tool is provided, do not invent live data. Perform write actions only when the user explicitly asks for them. Never claim an action was completed unless a tool actually completed it. Keep responses concise unless the user preference requests detail.`,
   messages,
   tools:selectedTools,
   responseStyle:pref.response_style
