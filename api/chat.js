@@ -3,6 +3,7 @@ import { generateText } from "../lib/ai-router.js";
 import { createAssistantTools } from "../lib/assistant-tools.js";
 import { requireFeature,requireUnits,entitlementError } from "../lib/entitlements.js";
 import { deterministicChat,selectToolNames,filterTools,routeProfile,bumpOptimization } from "../lib/ai-optimization.js";
+import { enforceUserRateLimit,rateLimitError } from "../lib/rate-limit.js";
 
 export const access="user";
 export const methods=["POST"];
@@ -31,7 +32,9 @@ async function maybeUpdateSummary(userId,conversationId,existingSummary,summariz
 }
 
 export default async function(req,res){
- const userId=req.user.id,b=req.body||{},message=typeof b.message==="string"?b.message.trim():"";
+ const userId=req.user.id;
+ const rate=await enforceUserRateLimit(userId,"chat",{limit:30,windowSeconds:60});if(!rate.ok)return rateLimitError(res,rate);
+ const b=req.body||{},message=typeof b.message==="string"?b.message.trim():"";
  if(!message||message.length>12000)return res.status(400).json({error:"message is required (max 12,000 characters)."});
  const featureGate=await requireFeature(userId,"chat");if(!featureGate.ok)return entitlementError(res,featureGate);
  let conversationId=b.conversation_id,conversation={summary:"",summarized_through_at:null};

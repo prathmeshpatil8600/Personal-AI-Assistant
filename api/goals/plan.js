@@ -1,8 +1,10 @@
 import { db } from "hatchable";
 import { generateText } from "../../lib/ai-router.js";
+import { enforceUserRateLimit,rateLimitError } from "../../lib/rate-limit.js";
 export const access="user";
 export const methods=["POST"];
 export default async function(req,res){
+ const rate=await enforceUserRateLimit(req.user.id,"goal_plan",{limit:10,windowSeconds:60});if(!rate.ok)return rateLimitError(res,rate);
  const {id}=req.body||{}; if(!id)return res.status(400).json({error:"Goal id is required"});
  const g=(await db.query("SELECT * FROM goals WHERE id=$1 AND user_id=$2",[id,req.user.id])).rows[0];
  if(!g)return res.status(404).json({error:"Goal not found"});
