@@ -1,9 +1,11 @@
 import { db } from "hatchable";
 import { razorpayRequest } from "../../lib/razorpay.js";
 import { upsertSubscriptionFromProvider } from "../../lib/billing.js";
+import { enforceUserRateLimit,rateLimitError } from "../../lib/rate-limit.js";
 export const access="user";
 export const methods=["POST"];
 export default async function(req,res){
+ const rate=await enforceUserRateLimit(req.user.id,"billing_cancel",{limit:5,windowSeconds:300});if(!rate.ok)return rateLimitError(res,rate);
  const mode=String(req.body?.mode||"period_end").toLowerCase();
  if(!["period_end","immediate"].includes(mode))return res.status(400).json({error:"mode must be period_end or immediate"});
  const sub=(await db.query("SELECT * FROM billing_subscriptions WHERE user_id=$1 LIMIT 1",[req.user.id])).rows[0];

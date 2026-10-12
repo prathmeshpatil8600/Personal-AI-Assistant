@@ -1,11 +1,13 @@
 import { db } from "hatchable";
-import { razorpayRequest,razorpayPublicKey,razorpayPlanEnv } from "../../lib/razorpay.js";
+import { razorpayRequest,razorpayPublicKey,razorpayPlanEnv,validateRazorpayPlan } from "../../lib/razorpay.js";
 import { upsertSubscriptionFromProvider } from "../../lib/billing.js";
+import { enforceUserRateLimit,rateLimitError } from "../../lib/rate-limit.js";
 export const access="user";
 export const methods=["POST"];
 const plans=new Set(["PLUS","PRO"]);
 const cycles=new Set(["MONTHLY","ANNUAL"]);
 export default async function(req,res){
+ const rate=await enforceUserRateLimit(req.user.id,"billing_create",{limit:5,windowSeconds:300});if(!rate.ok)return rateLimitError(res,rate);
  const planCode=String(req.body?.plan_code||"").toUpperCase(),billingCycle=String(req.body?.billing_cycle||"MONTHLY").toUpperCase();
  if(!plans.has(planCode)||!cycles.has(billingCycle))return res.status(400).json({error:"Valid plan_code and billing_cycle are required."});
  const existing=(await db.query("SELECT provider_subscription_id,status,plan_code,billing_cycle FROM billing_subscriptions WHERE user_id=$1 LIMIT 1",[req.user.id])).rows[0];
@@ -15,6 +17,8 @@ export default async function(req,res){
  const plan=razorpayPlanEnv(planCode,billingCycle);
  if(!plan.value)return res.status(503).json({error:"billing_setup_required",message:"This billing plan is not configured yet.",missing:plan.key});
  try{
+  const validation=await validateRazorpayPlan(planCode,billingCycle,plan.value);
+  if(!validation.ok)return res.status(503).json({error:"billing_plan_invalid",message:"The configured Razorpay plan does not match the expected price or billing interval.",expected:validation.expected,actual:validation.actual});
   const entity=await razorpayRequest("/subscriptions",{method:"POST",body:{
    plan_id:plan.value,
    total_count:billingCycle==="ANNUAL"?10:120,
