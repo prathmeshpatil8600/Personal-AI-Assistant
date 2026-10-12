@@ -132,16 +132,16 @@ read = "own"
 write = "own"
 
 [db.tables.documents]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.document_chunks]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.document_vectors]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.calendar_events]
 read = "own"
@@ -168,140 +168,140 @@ read = "own"
 write = "own"
 
 [db.tables.habit_completions]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.ai_runs]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.tool_approvals]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.tool_runs]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.mcp_connections]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.mcp_tool_registry]
-read = "member"
+read = "public"
 write = "member"
 
 [db.tables.google_connections]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.google_oauth_states]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.github_connections]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.github_oauth_states]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.usage_events]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.usage_rate_cards]
-read = "member"
+read = "public"
 write = "member"
 
 [db.tables.plan_definitions]
-read = "member"
+read = "public"
 write = "member"
 
 [db.tables.user_plan_assignments]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.billing_subscriptions]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.billing_events]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.business_daily_snapshots]
 read = "member"
 write = "member"
 
 [db.tables.addon_catalog]
-read = "member"
+read = "public"
 write = "member"
 
 [db.tables.addon_orders]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.addon_grants]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.organizations]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.organization_memberships]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.organization_invites]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.organization_billing_accounts]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.organization_workspaces]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.organization_shared_items]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.organization_audit_log]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.developer_api_keys]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.developer_api_usage_daily]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.white_label_profiles]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.integration_marketplace]
-read = "member"
+read = "public"
 write = "member"
 
 [db.tables.integration_installations]
-read = "member"
-write = "member"
+read = "public"
+write = "public"
 
 [db.tables.partner_codes]
-read = "member"
+read = "public"
 write = "member"
 
 [db.tables.referral_attributions]
-read = "member"
-write = "member"
+read = "own"
+write = "own"
 
 [db.tables.ai_response_cache]
 read = "own"
