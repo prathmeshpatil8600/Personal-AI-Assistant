@@ -11,7 +11,7 @@ export default async function(req,res){
   return res.json({ok:true,cleaned:true});
  }
  const task=(await db.query(
-  "INSERT INTO tasks(user_id,title,description,priority,status) VALUES($1,$2,$3,'HIGH','PENDING') RETURNING id",
+  "INSERT INTO tasks(user_id,title,description,priority,status) VALUES($1,$2,$3,'HIGH','TODO') RETURNING id",
   ["l1-other-user","L1 foreign isolation task","Synthetic cross-user isolation record"]
  )).rows[0];
 
