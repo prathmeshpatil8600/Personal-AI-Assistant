@@ -1,10 +1,10 @@
 import { db } from "hatchable";
 import { generateText } from "../../lib/ai-router.js";
-export const access="member";
+export const access="user";
 export const methods=["POST"];
 export default async function(req,res){
  const {id}=req.body||{}; if(!id)return res.status(400).json({error:"Goal id is required"});
- const g=(await db.query("SELECT * FROM goals WHERE id=$1 AND user_id=$2",[id,req.member.id])).rows[0];
+ const g=(await db.query("SELECT * FROM goals WHERE id=$1 AND user_id=$2",[id,req.user.id])).rows[0];
  if(!g)return res.status(404).json({error:"Goal not found"});
  const fallback=[
   {title:"Define the outcome and success criteria",priority:"HIGH"},
@@ -17,7 +17,7 @@ export default async function(req,res){
   const r=await generateText({
    model:"google.gemini",
    purpose:"goal_planning",
-   userId:req.member.id,
+   userId:req.user.id,
    maxSteps:2,
    responseStyle:"concise",
    cacheTtlSeconds:900,

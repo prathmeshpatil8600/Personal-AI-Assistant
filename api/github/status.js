@@ -1,7 +1,7 @@
 import { db } from "hatchable";
-export const access="member"; export const methods=["GET","DELETE"];
+export const access="user"; export const methods=["GET","DELETE"];
 export default async function(req,res){
- const userId=req.member.id;
+ const userId=req.user.id;
  if(req.method==="DELETE"){
   await db.query("DELETE FROM github_connections WHERE user_id=$1",[userId]);
   await db.query("UPDATE mcp_connections SET status='DISCONNECTED',enabled=false,updated_at=now() WHERE user_id=$1 AND provider='github'",[userId]);

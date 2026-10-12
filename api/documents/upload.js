@@ -3,14 +3,14 @@ import { embedText } from "../../lib/gemini-embed.js";
 import { extractPdfText } from "../../lib/pdf-text.js";
 import { recordUsageEvent } from "../../lib/usage-meter.js";
 import { requireFeature,requireUnits,requireCountLimit,entitlementError } from "../../lib/entitlements.js";
-export const access="member";
+export const access="user";
 export const methods=["POST"];
 function decode(buffer){return new TextDecoder().decode(buffer)}
 function cleanText(s){return s.replace(/\r\n/g,"\n").replace(/\r/g,"\n").replace(/\u0000/g,"").trim()}
 function chunks(s,size=1800,overlap=200){const out=[];let i=0;while(i<s.length){const part=s.slice(i,i+size).trim();if(part)out.push(part);if(i+size>=s.length)break;i+=size-overlap}return out}
 function vec(v){return "["+v.join(",")+"]"}
 export default async function(req,res){
- const member=req.member,file=req.files?.[0];if(!file)return res.status(400).json({error:"Upload a document file."});
+ const member=req.user,file=req.files?.[0];if(!file)return res.status(400).json({error:"Upload a document file."});
  const filename=file.filename||"document",ext=(filename.split(".").pop()||"").toLowerCase(),isPdf=file.contentType==="application/pdf"||ext==="pdf";
  const allowed=["text/plain","text/markdown","text/csv","application/json","text/html"];
  if(!isPdf&&!allowed.includes(file.contentType))return res.status(415).json({error:"Supported formats: PDF, TXT, Markdown, CSV, JSON, and HTML."});

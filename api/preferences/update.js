@@ -1,5 +1,5 @@
 import { db } from "hatchable";
-export const access="member";
+export const access="user";
 export const methods=["POST"];
 export default async function(req,res){
   const b=req.body||{};
@@ -13,6 +13,6 @@ export default async function(req,res){
     VALUES($1,$2,$3,$4,$5)
     ON CONFLICT(user_id) DO UPDATE SET preferred_language=EXCLUDED.preferred_language,response_style=EXCLUDED.response_style,theme=EXCLUDED.theme,timezone=EXCLUDED.timezone,updated_at=now()
     RETURNING preferred_language,response_style,theme,timezone
-  `,[req.member.id,language,style,theme,timezone]);
+  `,[req.user.id,language,style,theme,timezone]);
   res.json(rows[0]);
 }

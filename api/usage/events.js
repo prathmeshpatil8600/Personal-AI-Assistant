@@ -1,5 +1,5 @@
 import { db } from "hatchable";
-export const access="member";
+export const access="user";
 export const methods=["GET"];
 export default async function(req,res){
  const limit=Math.max(1,Math.min(100,Number.parseInt(req.query?.limit,10)||50));
@@ -10,6 +10,6 @@ export default async function(req,res){
   WHERE user_id=$1
   ORDER BY occurred_at DESC
   LIMIT $2
- `,[req.member.id,limit])).rows;
+ `,[req.user.id,limit])).rows;
  res.json(rows);
 }

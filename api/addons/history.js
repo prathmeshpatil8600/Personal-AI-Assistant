@@ -1,5 +1,5 @@
 import { db } from "hatchable";
-export const access="member";
+export const access="user";
 export const methods=["GET"];
 export default async function(req,res){
  const rows=(await db.query(`
@@ -10,6 +10,6 @@ export default async function(req,res){
   LEFT JOIN addon_grants g ON g.addon_order_id=o.id
   WHERE o.user_id=$1
   ORDER BY o.created_at DESC LIMIT 50
- `,[req.member.id])).rows;
+ `,[req.user.id])).rows;
  res.json(rows);
 }

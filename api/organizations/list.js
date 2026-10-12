@@ -1,5 +1,5 @@
 import { db } from "hatchable";
-export const access="member";
+export const access="user";
 export const methods=["GET"];
 export default async function(req,res){
  const rows=(await db.query(`
@@ -10,6 +10,6 @@ export default async function(req,res){
   JOIN organizations o ON o.id=m.organization_id
   WHERE m.user_id=$1 AND m.status='ACTIVE' AND o.status='ACTIVE'
   ORDER BY o.created_at ASC
- `,[req.member.id])).rows;
+ `,[req.user.id])).rows;
  res.json(rows);
 }

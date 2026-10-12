@@ -1,8 +1,8 @@
 import { db } from "hatchable";
-export const access="member";
+export const access="user";
 export const methods=["GET","POST"];
 export default async function(req,res){
- const userId=req.member.id;
+ const userId=req.user.id;
  if(req.method==="GET"){
   const {rows}=await db.query("SELECT id,provider,server_name,server_url,auth_type,status,enabled,scopes,last_checked_at,last_success_at,last_error,created_at,updated_at FROM mcp_connections WHERE user_id=$1 ORDER BY provider,server_name",[userId]);
   return res.json(rows);

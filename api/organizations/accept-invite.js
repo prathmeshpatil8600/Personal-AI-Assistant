@@ -1,14 +1,14 @@
 import { db } from "hatchable";
 import { hashToken,writeOrgAudit } from "../../lib/organizations.js";
-export const access="member";
+export const access="user";
 export const methods=["POST"];
 export default async function(req,res){
  const token=String(req.body?.invite_token||"").trim();
  if(token.length<32)return res.status(400).json({error:"Valid invite token is required."});
  const hash=await hashToken(token);
  try{
-  const accepted=(await db.query("SELECT * FROM accept_organization_invite_atomic($1,$2)",[hash,req.member.id])).rows[0];
-  await writeOrgAudit({orgId:accepted.organization_id,actor:req.member.id,action:"INVITE_ACCEPTED",targetType:"membership",targetId:req.member.id,metadata:{role:accepted.member_role}});
+  const accepted=(await db.query("SELECT * FROM accept_organization_invite_atomic($1,$2)",[hash,req.user.id])).rows[0];
+  await writeOrgAudit({orgId:accepted.organization_id,actor:req.user.id,action:"INVITE_ACCEPTED",targetType:"membership",targetId:req.user.id,metadata:{role:accepted.member_role}});
   res.json({ok:true,organization:{id:accepted.organization_id,name:accepted.organization_name},role:accepted.member_role});
  }catch(e){
   const msg=String(e?.message||e);

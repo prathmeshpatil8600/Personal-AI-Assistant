@@ -1,6 +1,6 @@
 import { db } from "hatchable";
 import { normalizeRecurrence } from "../../lib/recurrence.js";
-export const access="member"; export const methods=["PATCH"];
+export const access="user"; export const methods=["PATCH"];
 export default async function(req,res){
  const id=req.query?.id||req.params?.id;
  if(!id)return res.status(400).json({error:"Event id is required."});
@@ -18,7 +18,7 @@ export default async function(req,res){
  const startValue=fields.findIndex(x=>x.startsWith("start_at = "));
  const endValue=fields.findIndex(x=>x.startsWith("end_at = "));
  if(startValue>=0&&endValue>=0&&values[startValue]>values[endValue])return res.status(400).json({error:"End time must be after start time."});
- fields.push("updated_at=now()");values.push(req.member.id,id);
+ fields.push("updated_at=now()");values.push(req.user.id,id);
  const r=await db.query("UPDATE calendar_events SET "+fields.join(", ")+" WHERE user_id=$"+(values.length-1)+" AND id=$"+values.length+" RETURNING *",values);
  if(!r.rows.length)return res.status(404).json({error:"Event not found."});
  res.json(r.rows[0]);

@@ -1,7 +1,7 @@
 import { db } from "hatchable";
 import { razorpayPlanEnv } from "../../lib/razorpay.js";
 import { COMMERCIAL_PRICES,PRICING_STATUS,CURRENCY } from "../../lib/commercial-pricing.js";
-export const access="member";
+export const access="user";
 export const methods=["GET"];
 
 const testPrices=COMMERCIAL_PRICES;

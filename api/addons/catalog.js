@@ -1,10 +1,10 @@
 import { getUsageState } from "../../lib/entitlements.js";
 import { addonCatalogForPlan } from "../../lib/addons.js";
 import { razorpayPublicKey } from "../../lib/razorpay.js";
-export const access="member";
+export const access="user";
 export const methods=["GET"];
 export default async function(req,res){
- const state=await getUsageState(req.member.id);
+ const state=await getUsageState(req.user.id);
  const addons=await addonCatalogForPlan(state.plan.plan_code);
  let billing_available=false;try{await razorpayPublicKey();billing_available=true}catch{}
  res.json({

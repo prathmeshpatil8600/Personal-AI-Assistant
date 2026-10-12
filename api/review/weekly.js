@@ -1,9 +1,9 @@
 import { db } from "hatchable";
 import { generateText } from "../../lib/ai-router.js";
-export const access="member";
+export const access="user";
 export const methods=["GET"];
 export default async function(req,res){
- const uid=req.member.id;
+ const uid=req.user.id;
  const [stats,tasks,goals]=await Promise.all([
   db.query("SELECT COALESCE(SUM(tasks_created),0)::int tasks_created,COALESCE(SUM(tasks_completed),0)::int tasks_completed,COALESCE(SUM(tasks_overdue),0)::int tasks_overdue,COALESCE(SUM(notes_created),0)::int notes_created,COALESCE(SUM(events_count),0)::int events_count FROM productivity_daily WHERE user_id=$1 AND stat_date>=CURRENT_DATE-6",[uid]),
   db.query("SELECT title,status,priority,due_at FROM tasks WHERE user_id=$1 AND created_at>=now()-interval '7 days' ORDER BY created_at DESC LIMIT 20",[uid]),

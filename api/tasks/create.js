@@ -1,6 +1,6 @@
 import { db } from "hatchable";
 
-export const access = "member";
+export const access="user";
 export const methods = ["POST"];
 
 export default async function (req, res) {
@@ -13,7 +13,7 @@ export default async function (req, res) {
   if (dueAt && Number.isNaN(dueAt.getTime())) return res.status(400).json({success:false,error:{code:"INVALID_DUE_DATE",message:"Invalid due date."}});
   const { rows } = await db.query(
     "INSERT INTO tasks (user_id,title,description,priority,due_at) VALUES ($1,$2,$3,$4,$5) RETURNING id,title,description,priority,status,due_at,created_at,updated_at",
-    [req.member.id,title,description,priority,dueAt]
+    [req.user.id,title,description,priority,dueAt]
   );
   res.status(201).json(rows[0]);
 }

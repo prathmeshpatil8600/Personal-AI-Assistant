@@ -1,14 +1,14 @@
 import { db } from "hatchable";
 import { requireCountLimit,entitlementError } from "../../lib/entitlements.js";
-export const access="member";
+export const access="user";
 export const methods=["POST"];
 export default async function(req,res){
   const b=req.body||{};
   const key=String(b.memory_key||"").trim();
   const value=String(b.memory_value||"").trim();
   if(!key||!value) return res.status(400).json({error:"memory_key and memory_value are required"});
-  const duplicate=(await db.query("SELECT id FROM memories WHERE user_id=$1 AND memory_key=$2 LIMIT 1",[req.member.id,key])).rows[0];
-  if(!duplicate){const existing=Number((await db.query("SELECT count(*)::int AS n FROM memories WHERE user_id=$1",[req.member.id])).rows[0]?.n||0);const countGate=await requireCountLimit(req.member.id,"max_memory_items",existing);if(!countGate.ok)return entitlementError(res,countGate)}
+  const duplicate=(await db.query("SELECT id FROM memories WHERE user_id=$1 AND memory_key=$2 LIMIT 1",[req.user.id,key])).rows[0];
+  if(!duplicate){const existing=Number((await db.query("SELECT count(*)::int AS n FROM memories WHERE user_id=$1",[req.user.id])).rows[0]?.n||0);const countGate=await requireCountLimit(req.user.id,"max_memory_items",existing);if(!countGate.ok)return entitlementError(res,countGate)}
   const category=String(b.category||"general").trim().slice(0,80)||"general";
   const source=String(b.source||"user").trim().slice(0,80)||"user";
   const importance=Math.max(1,Math.min(5,Number.parseInt(b.importance,10)||3));
@@ -19,6 +19,6 @@ export default async function(req,res){
     VALUES($1,$2,$3,$4,$5,$6,$7,$8)
     ON CONFLICT(user_id,memory_key) DO UPDATE SET category=EXCLUDED.category,memory_value=EXCLUDED.memory_value,source=EXCLUDED.source,importance=EXCLUDED.importance,confidence=EXCLUDED.confidence,source_conversation_id=COALESCE(EXCLUDED.source_conversation_id,memories.source_conversation_id),updated_at=now()
     RETURNING id,category,memory_key,memory_value,source,importance,confidence,source_conversation_id,created_at,updated_at
-  `,[req.member.id,category,key,value,source,importance,confidence,sourceConversationId]);
+  `,[req.user.id,category,key,value,source,importance,confidence,sourceConversationId]);
   res.json(rows[0]);
 }

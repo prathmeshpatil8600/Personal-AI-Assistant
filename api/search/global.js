@@ -1,10 +1,10 @@
 import { db } from "hatchable";
-export const access="member";
+export const access="user";
 export const methods=["GET"];
 export default async function(req,res){
  const q=String(req.query?.q||"").trim();
  if(!q)return res.json({query:"",results:[]});
- const like="%"+q+"%",uid=req.member.id;
+ const like="%"+q+"%",uid=req.user.id;
  const {rows}=await db.query(`
  SELECT * FROM (
   SELECT 'task' type,id,title,description snippet,updated_at date FROM tasks WHERE user_id=$1 AND (title ILIKE $2 OR description ILIKE $2)

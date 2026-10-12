@@ -1,8 +1,8 @@
 import { db } from "hatchable";
-export const access="member";
+export const access="user";
 export const methods=["GET","POST"];
 export default async function(req,res){
- const uid=req.member.id;
+ const uid=req.user.id;
  if(req.method==="GET"){
   const r=await db.query("SELECT id,conversation_id,tool_name,risk_level,input_json,status,expires_at,decided_at,created_at FROM tool_approvals WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50",[uid]);
   return res.json(r.rows);

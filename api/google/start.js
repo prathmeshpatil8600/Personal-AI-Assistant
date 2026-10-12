@@ -1,9 +1,9 @@
 import { db } from "hatchable";
 import { randomState, authorizationUrl } from "../../lib/google-oauth.js";
 import { requireFeature,entitlementError } from "../../lib/entitlements.js";
-export const access="member"; export const methods=["GET"];
+export const access="user"; export const methods=["GET"];
 export default async function(req,res){
- const gate=await requireFeature(req.member.id,"google_integration");if(!gate.ok)return entitlementError(res,gate);
+ const gate=await requireFeature(req.user.id,"google_integration");if(!gate.ok)return entitlementError(res,gate);
  const proto=(req.headers?.["x-forwarded-proto"]||"https").split(",")[0].trim();
  const host=(req.headers?.["x-forwarded-host"]||req.headers?.host||"personal-ai-5c3q-draft.hatchable.site").split(",")[0].trim();
  const redirectUri=proto+"://"+host+"/api/google/callback";
@@ -11,7 +11,7 @@ export default async function(req,res){
   return res.status(503).json({error:"Google OAuth is not configured yet.",setup_required:["GOOGLE_OAUTH_CLIENT_ID","GOOGLE_OAUTH_CLIENT_SECRET","GOOGLE_OAUTH_ENCRYPTION_KEY"],redirect_uri:redirectUri});
  }
  const state=randomState();
- await db.query("DELETE FROM google_oauth_states WHERE user_id=$1 OR expires_at<=now()",[req.member.id]);
- await db.query("INSERT INTO google_oauth_states(state,user_id,redirect_uri) VALUES($1,$2,$3)",[state,req.member.id,redirectUri]);
+ await db.query("DELETE FROM google_oauth_states WHERE user_id=$1 OR expires_at<=now()",[req.user.id]);
+ await db.query("INSERT INTO google_oauth_states(state,user_id,redirect_uri) VALUES($1,$2,$3)",[state,req.user.id,redirectUri]);
  res.json({authorization_url:authorizationUrl({state,redirectUri}),redirect_uri:redirectUri});
 }

@@ -1,9 +1,9 @@
 import { db } from "hatchable";
-export const access="member";
+export const access="user";
 export const methods=["GET"];
 export default async function(req,res){
  const days=Math.max(1,Math.min(366,Number.parseInt(req.query?.days,10)||30));
- const uid=req.member.id;
+ const uid=req.user.id;
  const totals=(await db.query(`
   SELECT count(*)::int events,
          COALESCE(sum(input_tokens),0)::bigint input_tokens,

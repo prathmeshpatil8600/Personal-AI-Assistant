@@ -1,8 +1,8 @@
 import { db } from "hatchable";
-export const access="member";
+export const access="user";
 export const methods=["GET"];
 export default async function(req,res){
- const userId=req.member.id, now=new Date();
+ const userId=req.user.id, now=new Date();
  const start=new Date(now); start.setHours(0,0,0,0);
  const end=new Date(start); end.setDate(end.getDate()+1);
  const [tasks,events,reminders,overdue,habits,completions,goals,conversations]=await Promise.all([

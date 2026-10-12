@@ -1,13 +1,13 @@
 import { db } from "hatchable";
 import { requireOrgRole,orgError,writeOrgAudit } from "../../lib/organizations.js";
-export const access="member";
+export const access="user";
 export const methods=["GET","POST"];
 const accents=new Set(["forest","indigo","ocean","amber","rose"]);
 function safeHttpsUrl(v){if(!v)return null;try{const u=new URL(String(v));return u.protocol==="https:"?u.href:null}catch{return null}}
 export default async function(req,res){
  const orgId=String((req.method==="GET"?req.query?.organization_id:req.body?.organization_id)||"").trim();
  if(!orgId)return res.status(400).json({error:"organization_id is required"});
- const gate=await requireOrgRole(req.member.id,orgId,req.method==="POST"?"ADMIN":"MEMBER");if(!gate.ok)return orgError(res,gate);
+ const gate=await requireOrgRole(req.user.id,orgId,req.method==="POST"?"ADMIN":"MEMBER");if(!gate.ok)return orgError(res,gate);
  if(req.method==="GET"){
   const row=(await db.query("SELECT organization_id,brand_name,accent_key,logo_url,support_email,welcome_message,enabled,updated_at FROM white_label_profiles WHERE organization_id=$1",[orgId])).rows[0];
   return res.json(row||{organization_id:orgId,brand_name:gate.membership.name,accent_key:"forest",logo_url:null,support_email:null,welcome_message:"",enabled:false});
@@ -22,6 +22,6 @@ export default async function(req,res){
   ON CONFLICT(organization_id) DO UPDATE SET brand_name=EXCLUDED.brand_name,accent_key=EXCLUDED.accent_key,logo_url=EXCLUDED.logo_url,support_email=EXCLUDED.support_email,welcome_message=EXCLUDED.welcome_message,enabled=EXCLUDED.enabled,updated_at=now()
   RETURNING organization_id,brand_name,accent_key,logo_url,support_email,welcome_message,enabled,updated_at
  `,[orgId,brand,accent,logo,support,welcome,enabled])).rows[0];
- await writeOrgAudit({orgId,actor:req.member.id,action:"WHITE_LABEL_UPDATED",targetType:"organization",targetId:orgId,metadata:{enabled,accent_key:accent}});
+ await writeOrgAudit({orgId,actor:req.user.id,action:"WHITE_LABEL_UPDATED",targetType:"organization",targetId:orgId,metadata:{enabled,accent_key:accent}});
  res.json(row);
 }
