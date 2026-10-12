@@ -34,14 +34,14 @@ description = "Google OAuth 2.0 Web application client ID for Gmail, Calendar, a
 name = "GOOGLE_OAUTH_CLIENT_SECRET"
 provider = "custom"
 required = false
-expose = true
+expose = false
 description = "Google OAuth 2.0 Web application client secret. Stored server-side only."
 
 [[secret]]
 name = "GOOGLE_OAUTH_ENCRYPTION_KEY"
 provider = "custom"
 required = false
-expose = true
+expose = false
 description = "Long random secret used to encrypt Google refresh tokens at rest."
 
 [[secret]]
@@ -55,14 +55,14 @@ description = "GitHub App client ID used for the SecondBrain GitHub connection."
 name = "GITHUB_CLIENT_SECRET"
 provider = "custom"
 required = false
-expose = true
+expose = false
 description = "GitHub App client secret used server-side for OAuth token exchange."
 
 [[secret]]
 name = "GITHUB_OAUTH_ENCRYPTION_KEY"
 provider = "custom"
 required = false
-expose = true
+expose = false
 description = "Long random server-only key used to encrypt GitHub tokens at rest."
 
 [[secret]]
@@ -76,7 +76,7 @@ description = "Razorpay API key ID used server-side for subscription billing."
 name = "RAZORPAY_KEY_SECRET"
 provider = "custom"
 required = false
-expose = true
+expose = false
 description = "Razorpay API key secret. Server-side only."
 
 [[secret]]
