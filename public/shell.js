@@ -40,5 +40,17 @@ async function refreshApprovals(){try{const r=await fetch('/api/tools/approvals'
 async function refreshAdminAccess(){try{const r=await fetch("/api/business/overview");if(!r.ok)return;document.querySelectorAll("[data-admin-only=\"true\"]").forEach(el=>el.hidden=false)}catch{}}
 async function refreshConnections(){try{const [g,h]=await Promise.all([fetch('/api/google/status'),fetch('/api/github/status')]);const names=[];if(g.ok){const x=await g.json();if(x.connected)names.push('Google')}if(h.ok){const x=await h.json();if(x.connected)names.push('GitHub')}const el=document.getElementById('connectionContext');if(el)el.textContent=names.length?names.join(' + ')+' connected':'Private workspace'}catch{}}
 window.SecondBrainShell={mount,refreshApprovals,refreshConnections,setContext(label){const el=document.getElementById('contextSection');if(el)el.textContent=label}};
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
+async function boot(){
+ try{
+  const A=window.hatchable&&window.hatchable.auth;
+  if(!A||!A.getSession){location.replace('/login?next='+encodeURIComponent(location.pathname+location.search));return}
+  const session=await A.getSession();
+  if(!session||!session.user){location.replace('/login?next='+encodeURIComponent(location.pathname+location.search));return}
+  window.SecondBrainUser=session.user;
+  mount();
+ }catch{
+  location.replace('/login?next='+encodeURIComponent(location.pathname+location.search));
+ }
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
