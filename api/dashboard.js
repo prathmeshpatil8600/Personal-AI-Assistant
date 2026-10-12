@@ -1,12 +1,10 @@
-import { db, auth } from "hatchable";
+import { db } from "hatchable";
 
-export const access = "public";
+export const access = "user";
 export const methods = ["GET"];
 
 export default async function (req, res) {
-  const user = await auth.requireUser(req, res);
-  if (!user) return;
-  const userId = user.id;
+  const userId = req.user.id;
 
   const [taskResult, noteResult] = await Promise.all([
     db.query("SELECT id, title, priority, status, due_at FROM tasks WHERE user_id = $1 AND status <> 'CANCELLED' ORDER BY CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END, due_at NULLS LAST, created_at DESC LIMIT 8", [userId]),
