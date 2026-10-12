@@ -1,5 +1,110 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in · secondbrain</title><script src="/design-system.js"></script><link rel="stylesheet" href="/theme.css"></head><body><main style="min-height:100vh;display:grid;place-items:center;padding:24px"><section class="card" style="width:min(420px,100%)"><div class="brand" style="padding:0 0 20px">second<span style="color:var(--accent)">brain</span></div><h1 style="font-size:28px">Welcome back</h1><p class="label" style="margin-bottom:24px">Sign in with a one-time email code. No password required.</p><div id="form"><input id="email" type="email" autocomplete="username" placeholder="you@example.com" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px"><button id="send" class="primary" style="width:100%;margin-top:10px">Send code</button></div><div id="codeBox" hidden><input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px"><button id="verify" class="primary" style="width:100%;margin-top:10px">Sign in</button></div><p id="msg" class="label" style="margin-top:14px"></p></section></main><script>
-const A=window.hatchable?.auth,next=new URLSearchParams(location.search).get('next')||'/';let email='';
-send.onclick=async()=>{email=document.getElementById('email').value.trim();if(!email)return msg.textContent='Enter your email.';send.disabled=true;try{await A.startLogin({email});form.hidden=true;codeBox.hidden=false;msg.textContent='Code sent. Check your email.';code.focus()}catch(e){msg.textContent=e.message||'Could not send code.'}send.disabled=false};
-verify.onclick=async()=>{verify.disabled=true;try{const r=await A.verifyCode({email,code:code.value.trim()});if(r?.user)location.replace(next.startsWith('/')&&!next.startsWith('//')?next:'/');else msg.textContent='Invalid code.'}catch(e){msg.textContent=e.message||'Invalid code.'}verify.disabled=false};
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Sign in · secondbrain</title>
+<script src="/design-system.js"></script>
+<link rel="stylesheet" href="/theme.css">
+<link rel="stylesheet" href="/phase18.css">
+<style>
+  body{min-height:100vh;display:grid;place-items:center;margin:0;padding:24px;background:var(--bg)}
+  .login-shell{width:min(430px,100%);position:relative}
+  .login-card{padding:28px;border-radius:28px;background:var(--living-surface-strong,var(--surface));border:1px solid var(--line);box-shadow:var(--living-depth)}
+  .login-brand{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+  .login-brand .assistant-mark{width:28px;height:28px}
+  .login-brand b{font:700 18px var(--font-display);letter-spacing:-.03em}.login-brand b span{color:var(--accent)}
+  .login-card h1{font-size:34px;margin:0 0 8px}.login-card .sub{margin:0 0 24px;color:var(--muted);line-height:1.55}
+  .login-card input{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit}
+  .login-card input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+  .login-card button{width:100%;margin-top:10px}
+  .login-card .alt{background:transparent;color:var(--muted);box-shadow:none}
+  .login-msg{min-height:20px;margin:14px 0 0;font-size:12px;color:var(--muted)}.login-msg.err{color:var(--danger)}
+  .security-note{display:flex;gap:8px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main class="login-shell">
+  <section class="login-card">
+    <div class="login-brand"><div class="assistant-mark" aria-hidden="true"><span></span></div><b>second<span>brain</span></b></div>
+    <h1 id="title">Welcome back</h1>
+    <p class="sub" id="sub">Sign in with a one-time email code. No password to remember.</p>
+
+    <form id="form" novalidate>
+      <div id="emailRow">
+        <input id="email" type="email" autocomplete="username webauthn" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="you@example.com" aria-label="Email" required>
+      </div>
+      <div id="codeRow" hidden>
+        <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" placeholder="6-digit code" aria-label="6-digit code">
+      </div>
+      <button id="submit" class="primary" type="submit">Continue</button>
+      <button id="back" class="ghost alt" type="button" hidden>Use a different email</button>
+    </form>
+
+    <div id="passkeyOffer" hidden>
+      <p class="sub">Add a passkey so next time you can sign in with your fingerprint, face, or device screen lock.</p>
+      <button id="addPasskey" class="primary" type="button">Add a passkey</button>
+      <button id="skipPasskey" class="ghost alt" type="button">Not now</button>
+    </div>
+
+    <p id="msg" class="login-msg" role="status" aria-live="polite"></p>
+    <div class="security-note"><span>◇</span><span>Your sign-in session is managed by Hatchable. SecondBrain never stores a password.</span></div>
+  </section>
+</main>
+<script>
+(function(){
+  var A=window.hatchable&&window.hatchable.auth;
+  var form=document.getElementById('form'),emailRow=document.getElementById('emailRow'),codeRow=document.getElementById('codeRow');
+  var email=document.getElementById('email'),code=document.getElementById('code'),submit=document.getElementById('submit'),back=document.getElementById('back');
+  var msg=document.getElementById('msg'),sub=document.getElementById('sub'),title=document.getElementById('title');
+  var offer=document.getElementById('passkeyOffer'),add=document.getElementById('addPasskey'),skip=document.getElementById('skipPasskey');
+  var step='email',hasPasskey=false,DECLINED='secondbrain.passkeyOfferDeclined';
+
+  function safeNext(){var raw=new URLSearchParams(location.search).get('next')||'/';return typeof raw==='string'&&raw.charAt(0)==='/'&&raw.indexOf('//')!==0?raw:'/'}
+  function say(text,kind){msg.textContent=text||'';msg.className='login-msg '+(kind||'')}
+  function done(){location.replace(safeNext())}
+  function declined(){try{return localStorage.getItem(DECLINED)==='1'}catch(e){return false}}
+  function decline(){try{localStorage.setItem(DECLINED,'1')}catch(e){}}
+  function finish(){
+    if(hasPasskey||declined()||!A.registerPasskey||!A.supportsPasskeys||!A.supportsPasskeys()){done();return}
+    step='passkey';form.hidden=true;offer.hidden=false;title.textContent="You're signed in";
+    sub.textContent='Make future sign-ins faster and phishing-resistant with a passkey.';say('');add.focus();
+  }
+
+  if(!A){say('Sign-in is unavailable right now. Please refresh.','err');submit.disabled=true;return}
+  A.getSession().then(function(s){if(s&&s.user)done()}).catch(function(){});
+  if(A.attachPasskeyAutofill){try{A.attachPasskeyAutofill(email).then(function(r){if(r&&r.user)done()}).catch(function(){})}catch(e){}}
+
+  back.addEventListener('click',function(){step='email';codeRow.hidden=true;emailRow.hidden=false;back.hidden=true;submit.textContent='Continue';sub.textContent='Sign in with a one-time email code. No password to remember.';say('');email.focus()});
+  add.addEventListener('click',function(){add.disabled=true;skip.disabled=true;say('');A.registerPasskey().then(function(r){if(!r)decline();done()}).catch(function(e){add.disabled=false;skip.disabled=false;say((e&&e.message)||'Could not save the passkey. You can continue without one.','err')})});
+  skip.addEventListener('click',function(){decline();done()});
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault();submit.disabled=true;
+    if(step==='email'){
+      var value=(email.value||'').trim();
+      if(!value){submit.disabled=false;say('Enter your email address.','err');return}
+      A.startLogin({email:value}).then(function(r){
+        hasPasskey=!!(r&&r.has_passkey);
+        if(hasPasskey&&A.supportsPasskeys&&A.supportsPasskeys()){
+          return A.signInWithPasskey({email:value}).then(function(d){if(d&&d.user){done();return null}return 'code'}).catch(function(){return 'code'});
+        }
+        return 'code';
+      }).then(function(next){
+        if(next!=='code')return;
+        step='code';emailRow.hidden=true;codeRow.hidden=false;back.hidden=false;submit.textContent='Sign in';
+        sub.textContent='Enter the code we sent to '+value+'.';say('Code sent. It expires soon.');code.focus();
+      }).catch(function(err){say(err&&err.status===429?'Too many attempts. Try again shortly.':((err&&err.message)||'Could not send the code.'),'err')})
+      .then(function(){submit.disabled=false});
+      return;
+    }
+    A.verifyCode({email:(email.value||'').trim(),code:(code.value||'').trim()}).then(function(d){if(d&&d.user){finish();return}say('That code did not work. Try again.','err')})
+      .catch(function(err){say((err&&err.message)||'That code did not work. Try again.','err')}).then(function(){submit.disabled=false});
+  });
+  email.focus();
+})();
+</script>
+</body>
+</html>
