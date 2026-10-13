@@ -315,6 +315,18 @@ write = "own"
 read = "own"
 write = "own"
 
+[db.tables.account_deletion_requests]
+read = "own"
+write = "own"
+
+[db.tables.privacy_consents]
+read = "own"
+write = "own"
+
+[db.tables.privacy_grievances]
+read = "own"
+write = "own"
+
 [[cron]]
 path = "/api/jobs/hourly-reminders"
 schedule = "0 * * * *"
