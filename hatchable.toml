@@ -315,6 +315,10 @@ write = "own"
 read = "own"
 write = "own"
 
+[db.tables.pilot_feedback]
+read = "own"
+write = "own"
+
 [db.tables.account_deletion_requests]
 read = "own"
 write = "own"
@@ -332,7 +336,7 @@ path = "/api/jobs/hourly-reminders"
 schedule = "0 * * * *"
 
 [[cron]]
-path = "/api/jobs/billing-reconcile"
+path = "/api/jobs/billing-reconcile-v2"
 schedule = "20 * * * *"
 
 [[cron]]
