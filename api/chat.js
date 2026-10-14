@@ -4,6 +4,7 @@ import { createAssistantTools } from "../lib/assistant-tools.js";
 import { requireFeature,requireUnits,entitlementError } from "../lib/entitlements.js";
 import { deterministicChat,selectToolNames,filterTools,routeProfile,bumpOptimization } from "../lib/ai-optimization.js";
 import { enforceUserRateLimit,rateLimitError } from "../lib/rate-limit.js";
+import { markOnboardingStep } from "../lib/pilot.js";
 
 export const access="user";
 export const methods=["POST"];
@@ -52,6 +53,7 @@ export default async function(req,res){
  if(deterministic){
   await db.query("INSERT INTO conversation_messages(conversation_id,user_id,role,content,tool_calls) VALUES($1,$2,'assistant',$3,'[]'::jsonb)",[conversationId,userId,deterministic.text]);
   await db.query("UPDATE conversations SET updated_at=now() WHERE id=$1 AND user_id=$2",[conversationId,userId]);
+  await markOnboardingStep(userId,"chat");
   return res.json({conversation_id:conversationId,message:deterministic.text,steps:[],usage:{input:0,output:0,total_tokens:0},provider:"internal",model:"deterministic",optimized:true});
  }
 
@@ -89,5 +91,6 @@ Use only the tools provided for this request when the answer depends on live wor
 
  await db.query("INSERT INTO conversation_messages(conversation_id,user_id,role,content,tool_calls) VALUES($1,$2,'assistant',$3,$4)",[conversationId,userId,result.text||"",JSON.stringify(result.steps||[])]);
  await db.query("UPDATE conversations SET updated_at=now() WHERE id=$1 AND user_id=$2",[conversationId,userId]);
+ await markOnboardingStep(userId,"chat");
  res.json({conversation_id:conversationId,message:result.text,steps:result.steps,usage:result.usage,provider:result.provider,model:result.model});
 }

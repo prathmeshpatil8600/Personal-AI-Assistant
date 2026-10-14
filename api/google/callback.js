@@ -1,6 +1,7 @@
 import { db } from "hatchable";
 import { exchangeCode, encryptSecret, googleFetch } from "../../lib/google-oauth.js";
 import { requireFeature } from "../../lib/entitlements.js";
+import { markOnboardingStep } from "../../lib/pilot.js";
 export const access="user"; export const methods=["GET"];
 export default async function(req,res){
  const gate=await requireFeature(req.user.id,"google_integration");if(!gate.ok)return res.status(403).send("Google integration is not included in the current plan.");
@@ -26,6 +27,7 @@ export default async function(req,res){
    ['google_create_calendar_event','Create a Google Calendar event after explicit approval.','SENSITIVE']
   ];
   for(const [name,description,risk] of toolRows){await db.query(`INSERT INTO mcp_tool_registry(user_id,connection_id,tool_name,provider,description,risk_level,enabled,last_seen_at) VALUES($1,$2,$3,'google',$4,$5,true,now()) ON CONFLICT(user_id,provider,tool_name) DO UPDATE SET connection_id=EXCLUDED.connection_id,description=EXCLUDED.description,risk_level=EXCLUDED.risk_level,enabled=true,last_seen_at=now(),updated_at=now()`,[req.user.id,connectionId,name,description,risk]);}
+  await markOnboardingStep(req.user.id,"integration");
   res.send("Google account connected successfully. You can close this window and return to SecondBrain.");
  }catch(e){res.status(500).send("Google connection failed: "+String(e?.message||e).slice(0,500))}
 }

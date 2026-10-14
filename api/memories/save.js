@@ -1,5 +1,6 @@
 import { db } from "hatchable";
 import { requireCountLimit,entitlementError } from "../../lib/entitlements.js";
+import { markOnboardingStep } from "../../lib/pilot.js";
 export const access="user";
 export const methods=["POST"];
 export default async function(req,res){
@@ -20,5 +21,6 @@ export default async function(req,res){
     ON CONFLICT(user_id,memory_key) DO UPDATE SET category=EXCLUDED.category,memory_value=EXCLUDED.memory_value,source=EXCLUDED.source,importance=EXCLUDED.importance,confidence=EXCLUDED.confidence,source_conversation_id=COALESCE(EXCLUDED.source_conversation_id,memories.source_conversation_id),updated_at=now()
     RETURNING id,category,memory_key,memory_value,source,importance,confidence,source_conversation_id,created_at,updated_at
   `,[req.user.id,category,key,value,source,importance,confidence,sourceConversationId]);
+  await markOnboardingStep(req.user.id,"memory");
   res.json(rows[0]);
 }

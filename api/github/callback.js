@@ -1,6 +1,7 @@
 import { db } from "hatchable";
 import { exchangeGithubCode,encryptGithubSecret } from "../../lib/github-oauth.js";
 import { requireFeature } from "../../lib/entitlements.js";
+import { markOnboardingStep } from "../../lib/pilot.js";
 export const access="user"; export const methods=["GET"];
 export default async function(req,res){
  const gate=await requireFeature(req.user.id,"github_integration");if(!gate.ok)return res.status(403).send("GitHub integration is not included in the current plan.");
@@ -26,6 +27,7 @@ export default async function(req,res){
     VALUES($1,$2,$3,'github',$4,$5,true,'{}'::jsonb)
     ON CONFLICT(user_id,provider,tool_name) DO UPDATE SET connection_id=EXCLUDED.connection_id,description=EXCLUDED.description,risk_level=EXCLUDED.risk_level,enabled=true,last_seen_at=now(),updated_at=now()`,[req.user.id,conn.id,name,desc,risk]);
   }
+  await markOnboardingStep(req.user.id,"integration");
   res.send("GitHub connected successfully. You can close this window and return to SecondBrain.");
  }catch(e){res.status(500).send("GitHub connection failed: "+String(e.message||e).slice(0,500))}
 }

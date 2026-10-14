@@ -5,7 +5,7 @@ const groups=[
  {label:"Knowledge",items:[['search','Search','⌕'],['memory','Memory','◇']]},
  {label:"Automations",items:[['reminders','Reminders','◷'],['notifications','Notifications','◉']]},
  {label:"Review",items:[['focus','Focus','◌'],['stats','Productivity','↗'],['insights','Insights','✧'],['review','Weekly review','□']]},
- {label:"System",items:[['integrations','Integrations','⌘'],['approvals','Approvals','✓'],['plans','Plans & Billing','₹'],['platform','Developer & Platform','⌘'],['business','Business Analytics','↗',true],['settings','Settings','⚙']]}
+ {label:"System",items:[['integrations','Integrations','⌘'],['approvals','Approvals','✓'],['plans','Plans & Billing','₹'],['platform','Developer & Platform','⌘'],['pilotops','Pilot Operations','◫',true],['business','Business Analytics','↗',true],['settings','Settings','⚙']]}
 ];
 const commands=[
  ['Go to Today','briefing','Open your daily workspace'],['Ask AI','chat','Start or continue a conversation'],['Open tasks','tasks','Review tasks and priorities'],['Open calendar','calendar','See upcoming events'],['Search everything','search','Search workspace, documents and memory'],['Open memory','memory','Review what your assistant remembers'],['Open documents','documents','Browse uploaded knowledge'],['Open organizations','organizations','Manage team workspaces and seats'],['Open integrations','integrations','Manage Google and GitHub'],['Review approvals','approvals','Review sensitive actions'],['Plans and billing','plans','Compare plans and manage subscription'],['Developer and platform','platform','API keys, marketplace and white-label'],['Open settings','settings','Theme, style and preferences']
