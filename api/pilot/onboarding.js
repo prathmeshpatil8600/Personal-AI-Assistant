@@ -15,8 +15,9 @@ export default async function(req,res){
   const col={chat:"first_chat_at",task:"first_task_at",memory:"first_memory_at",document:"first_document_at",integration:"first_integration_at"}[step];
   const row=(await db.query(`INSERT INTO user_onboarding(user_id,completed_steps,${col})
    VALUES($1,jsonb_build_array($2),now())
-   ON CONFLICT(user_id) DO UPDATE SET completed_steps=(SELECT jsonb_agg(DISTINCT x) FROM jsonb_array_elements_text(user_onboarding.completed_steps||jsonb_build_array($2)) x),
-   ${col}=COALESCE(user_onboarding.${col},now()),updated_at=now()
+   ON CONFLICT(user_id) DO UPDATE SET
+    completed_steps=CASE WHEN user_onboarding.completed_steps ? $2 THEN user_onboarding.completed_steps ELSE user_onboarding.completed_steps||jsonb_build_array($2) END,
+    ${col}=COALESCE(user_onboarding.${col},now()),updated_at=now()
    RETURNING *`,[uid,step])).rows[0];
   const steps=Array.isArray(row.completed_steps)?row.completed_steps:[];
   if(steps.length>=3)await db.query("UPDATE user_onboarding SET status='COMPLETED',completed_at=COALESCE(completed_at,now()),updated_at=now() WHERE user_id=$1",[uid]);
