@@ -1,0 +1,26 @@
+import { db } from "hatchable";
+export const access="admin";
+export const methods=["GET","POST"];
+export default async function(req,res){
+ if(req.method==="GET"){
+  const rows=(await db.query(`SELECT p.user_id,u.email,u.name,p.cohort,p.status,p.activated_at,p.last_seen_at,p.created_at,p.updated_at
+   FROM pilot_participants p LEFT JOIN users u ON u.id=p.user_id ORDER BY p.created_at DESC LIMIT 500`)).rows;
+  return res.json(rows);
+ }
+ const rawUserId=String(req.body?.user_id||"").trim(),email=String(req.body?.email||"").trim().toLowerCase();
+ const status=String(req.body?.status||"INVITED").toUpperCase(),cohort=String(req.body?.cohort||"PILOT_1").trim().slice(0,40);
+ if(!["INVITED","ACTIVE","PAUSED","REMOVED"].includes(status))return res.status(400).json({error:"valid status is required"});
+ let uid=rawUserId;
+ if(!uid&&email){
+  const u=(await db.query("SELECT id,email,name FROM users WHERE lower(email)=lower($1) LIMIT 1",[email])).rows[0];
+  if(!u)return res.status(404).json({error:"user_not_found",message:"The user must sign in once before being added to the pilot."});
+  uid=u.id;
+ }
+ if(!uid)return res.status(400).json({error:"user_id or email is required"});
+ const row=(await db.query(`INSERT INTO pilot_participants(user_id,cohort,status,invited_by)
+ VALUES($1,$2,$3,'admin')
+ ON CONFLICT(user_id) DO UPDATE SET cohort=EXCLUDED.cohort,status=EXCLUDED.status,updated_at=now()
+ RETURNING user_id,cohort,status,activated_at,last_seen_at,created_at,updated_at`,[uid,cohort,status])).rows[0];
+ const u=(await db.query("SELECT email,name FROM users WHERE id=$1",[uid])).rows[0]||{};
+ res.json({...row,email:u.email||null,name:u.name||null});
+}

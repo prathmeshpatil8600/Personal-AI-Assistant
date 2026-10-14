@@ -47,7 +47,15 @@ async function boot(){
   const session=await A.getSession();
   if(!session||!session.user){location.replace('/login?next='+encodeURIComponent(location.pathname+location.search));return}
   window.SecondBrainUser=session.user;
+  const pilot=await fetch('/api/pilot/status',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});
+  if(!pilot.ok){
+   document.body.innerHTML='<main style="max-width:680px;margin:80px auto;padding:24px;font-family:system-ui"><h1>Closed pilot</h1><p>This build is currently invite-only. Your signed-in account has not been added to the pilot yet.</p><p>If you were invited, contact the pilot administrator and share the email address you used to sign in.</p><button onclick="location.href=\'/login\'">Return to sign in</button></main>';
+   return;
+  }
+  const pilotState=await pilot.json().catch(()=>null);
+  window.SecondBrainPilotState=pilotState;
   mount();
+  setTimeout(()=>window.SecondBrainPilot?.refresh?.(),250);
  }catch{
   location.replace('/login?next='+encodeURIComponent(location.pathname+location.search));
  }

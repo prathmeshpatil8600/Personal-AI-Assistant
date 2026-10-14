@@ -319,6 +319,14 @@ write = "own"
 read = "own"
 write = "own"
 
+[db.tables.pilot_participants]
+read = "own"
+write = "own"
+
+[db.tables.user_onboarding]
+read = "own"
+write = "own"
+
 [db.tables.account_deletion_requests]
 read = "own"
 write = "own"
