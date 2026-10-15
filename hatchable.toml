@@ -370,3 +370,7 @@ schedule = "30 6 * * *"
 [[cron]]
 path = "/api/jobs/weekly-review"
 schedule = "45 6 * * 1"
+
+[[cron]]
+path = "/api/jobs/pilot-review"
+schedule = "30 13 * * *"

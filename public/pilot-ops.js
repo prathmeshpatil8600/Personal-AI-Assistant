@@ -4,9 +4,11 @@
  function money(v){return "$"+Number(v||0).toFixed(4)}
  function statusChip(stop){return '<span class="status-chip '+(stop?'danger':'success')+'">'+(stop?'STOP':'OK')+'</span>'}
  window.renderPilotOps=async function(root){
-  const [m,people,feedback]=await Promise.all([api("/admin/pilot-metrics"),api("/admin/pilot-participants"),api("/admin/pilot-feedback")]);
+  const [m,people,feedback,review]=await Promise.all([api("/admin/pilot-metrics"),api("/admin/pilot-participants"),api("/admin/pilot-feedback"),api("/admin/pilot-review")]);
   root.innerHTML='<div class="top"><div><div class="eyebrow">Closed pilot</div><h1>Pilot Operations</h1><p class="label">Cohort health, activation, retention, AI latency, cost and stop conditions.</p></div><button class="ghost" id="refreshPilotOps">Refresh</button></div>'+
    '<div class="biz-alert '+(m.pilot_status==="CONTINUE"?"ok":"warn")+'"><b>'+esc(m.pilot_status)+'</b><span>'+(m.pilot_status==="CONTINUE"?"No automatic stop condition is currently triggered.":"Pause onboarding new users and review the triggered conditions.")+'</span></div>'+
+   '<div class="biz-alert '+(review.current.recommendation==="PAUSE"?"warn":"ok")+'"><b>Expansion recommendation: '+esc(review.current.recommendation)+'</b><span>'+esc((review.current.reasons||[]).join(" "))+'</span></div>'+
+   '<p><a href="/pilot-guide.html" target="_blank" rel="noopener">Open pilot tester guide ↗</a></p>'+
    '<div class="biz-grid">'+
     '<div class="biz-metric card"><span>Invited</span><b>'+num(m.activation.invited)+'</b><small>'+pct(m.activation.activation_rate_percent)+' activated</small></div>'+
     '<div class="biz-metric card"><span>First chat</span><b>'+num(m.activation.first_chat)+'</b><small>'+pct(m.activation.first_chat_rate_percent)+' of activated</small></div>'+
@@ -27,9 +29,14 @@
     '</tbody></table></div></section>'+
    '<section class="card biz-section"><div class="section-head"><div><h2>Recent feedback</h2></div></div><div class="list">'+
     (feedback.length?feedback.slice(0,20).map(x=>'<div class="item"><div><b>'+esc(x.category)+' · '+esc(x.severity)+'</b><div class="label">'+esc(x.message)+'</div></div><span class="pill">'+esc(x.status)+'</span></div>').join(""):'<div class="empty">No feedback yet.</div>')+
-   '</div></section>';
+   '</div></section>'+
+   '<section class="card biz-section"><div class="section-head"><div><h2>Daily review history</h2><span class="label">Automatic snapshots support Day-1, Day-3 and Day-7 decisions.</span></div><button class="secondary" id="savePilotReview">Save review now</button></div>'+
+    '<div class="biz-table-wrap"><table class="biz-table"><thead><tr><th>Date</th><th>Checkpoint</th><th>Recommendation</th><th>Reason</th></tr></thead><tbody>'+
+    ((review.history||[]).length?review.history.map(x=>'<tr><td>'+esc(x.review_date)+'</td><td>'+esc(x.checkpoint)+'</td><td>'+esc(x.recommendation)+'</td><td>'+esc((x.reasons||[]).join(" "))+'</td></tr>').join(""):'<tr><td colspan="4">No review snapshot yet.</td></tr>')+
+    '</tbody></table></div></section>';
   document.getElementById("refreshPilotOps").onclick=()=>renderPilotOps(root);
   document.getElementById("invitePilotUser").onclick=invitePilotUser;
+  document.getElementById("savePilotReview").onclick=async()=>{await api("/admin/pilot-review",{method:"POST",body:JSON.stringify({checkpoint:"MANUAL"})});window.SecondBrainToast?.("Pilot review snapshot saved.");await renderPilotOps(root)};
   window.SecondBrainShell?.setContext("Pilot Operations");
  }
  async function invitePilotUser(){
