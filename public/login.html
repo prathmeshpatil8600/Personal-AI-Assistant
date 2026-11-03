@@ -60,26 +60,39 @@
   var email=document.getElementById('email'),code=document.getElementById('code'),submit=document.getElementById('submit'),back=document.getElementById('back');
   var msg=document.getElementById('msg'),sub=document.getElementById('sub'),title=document.getElementById('title');
   var offer=document.getElementById('passkeyOffer'),add=document.getElementById('addPasskey'),skip=document.getElementById('skipPasskey');
-  var step='email',hasPasskey=false,DECLINED='secondbrain.passkeyOfferDeclined';
+  var step='email',hasPasskey=false;
 
-  function safeNext(){var raw=new URLSearchParams(location.search).get('next')||'/';return typeof raw==='string'&&raw.charAt(0)==='/'&&raw.indexOf('//')!==0?raw:'/'}
+  function safeNext(){var raw=new URLSearchParams(location.search).get('next')||'/app.html';return typeof raw==='string'&&raw.charAt(0)==='/'&&raw.indexOf('//')!==0?raw:'/app.html'}
   function say(text,kind){msg.textContent=text||'';msg.className='login-msg '+(kind||'')}
   function done(){location.replace(safeNext())}
-  function declined(){try{return localStorage.getItem(DECLINED)==='1'}catch(e){return false}}
-  function decline(){try{localStorage.setItem(DECLINED,'1')}catch(e){}}
-  function finish(){
-    if(hasPasskey||declined()||!A.registerPasskey||!A.supportsPasskeys||!A.supportsPasskeys()){done();return}
+  async function canOfferPasskey(){
+    if(hasPasskey||!A.registerPasskey||!window.PublicKeyCredential||!window.isSecureContext)return false;
+    if(!A.supportsPasskeys)return true;
+    try{return !!(await Promise.resolve(A.supportsPasskeys()))}catch(e){return true}
+  }
+  async function finish(){
+    if(!(await canOfferPasskey())){done();return}
     step='passkey';form.hidden=true;offer.hidden=false;title.textContent="You're signed in";
-    sub.textContent='Make future sign-ins faster and phishing-resistant with a passkey.';say('');add.focus();
+    sub.textContent='Add a passkey for faster, phishing-resistant sign-in using your fingerprint, face, PIN, or device screen lock.';say('');add.focus();
   }
 
   if(!A){say('Sign-in is unavailable right now. Please refresh.','err');submit.disabled=true;return}
-  A.getSession().then(function(s){if(s&&s.user)done()}).catch(function(){});
+  var fromLanding=new URLSearchParams(location.search).get('from')==='landing';
+  A.getSession().then(function(s){
+    if(s&&s.user){done();return}
+    if(!fromLanding){
+      var n=safeNext(),u='/';
+      if(n&&n!=='/')u+='?next='+encodeURIComponent(n);
+      location.replace(u);
+    }
+  }).catch(function(){
+    if(!fromLanding)location.replace('/');
+  });
   if(A.attachPasskeyAutofill){try{A.attachPasskeyAutofill(email).then(function(r){if(r&&r.user)done()}).catch(function(){})}catch(e){}}
 
   back.addEventListener('click',function(){step='email';codeRow.hidden=true;emailRow.hidden=false;back.hidden=true;submit.textContent='Continue';sub.textContent='Sign in with a one-time email code. No password to remember.';say('');email.focus()});
-  add.addEventListener('click',function(){add.disabled=true;skip.disabled=true;say('');A.registerPasskey().then(function(r){if(!r)decline();done()}).catch(function(e){add.disabled=false;skip.disabled=false;say((e&&e.message)||'Could not save the passkey. You can continue without one.','err')})});
-  skip.addEventListener('click',function(){decline();done()});
+  add.addEventListener('click',function(){add.disabled=true;skip.disabled=true;say('Creating passkey…');Promise.resolve(A.registerPasskey()).then(function(r){if(r===false||r==null)throw new Error('Passkey creation did not complete.');say('Passkey created successfully.');setTimeout(done,350)}).catch(function(e){add.disabled=false;skip.disabled=false;say((e&&e.message)||'Could not create the passkey. Make sure your browser supports passkeys and try again.','err')})});
+  skip.addEventListener('click',function(){done()});
 
   form.addEventListener('submit',function(e){
     e.preventDefault();submit.disabled=true;

@@ -10,7 +10,7 @@ const groups=[
 const commands=[
  ['Go to Today','briefing','Open your daily workspace'],['Ask AI','chat','Start or continue a conversation'],['Open Guide & Help','guide','Learn every section and feature'],['Open tasks','tasks','Review tasks and priorities'],['Open calendar','calendar','See upcoming events'],['Search everything','search','Search workspace, documents and memory'],['Open memory','memory','Review what your assistant remembers'],['Open documents','documents','Browse uploaded knowledge'],['Open organizations','organizations','Manage team workspaces and seats'],['Open integrations','integrations','Manage Google and GitHub'],['Review approvals','approvals','Review sensitive actions'],['Plans and billing','plans','Compare plans and manage subscription'],['Developer and platform','platform','API keys, marketplace and white-label'],['Open settings','settings','Theme, style and preferences']
 ];
-function navHTML(){return groups.map(g=>`<div class="nav-group"><div class="nav-label">${g.label}</div>${g.items.map(([id,label,icon,adminOnly])=>`<button class="nav-item" data-section="${id}" aria-label="${label}" ${adminOnly?'data-admin-only="true" hidden':''}><span class="nav-icon" aria-hidden="true">${icon}</span><span>${label}</span>${id==='approvals'?'<span class="nav-badge" id="approvalBadge" hidden>0</span>':''}</button>`).join('')}</div>`).join('')}
+function navHTML(){return groups.map(g=>`<div class="nav-group"><div class="nav-label">${g.label}</div>${g.items.map(([id,label,icon])=>`<button class="nav-item" data-section="${id}" aria-label="${label}"><span class="nav-icon" aria-hidden="true">${icon}</span><span>${label}</span>${id==='approvals'?'<span class="nav-badge" id="approvalBadge" hidden>0</span>':''}</button>`).join('')}</div>`).join('')}
 function paletteHTML(){return `<div class="command-backdrop" id="commandBackdrop" hidden><div class="command-palette" role="dialog" aria-modal="true" aria-labelledby="commandTitle"><div class="command-input-wrap"><span aria-hidden="true">⌕</span><input id="commandInput" autocomplete="off" placeholder="Search or run a command…" aria-label="Search commands"><kbd>Esc</kbd></div><div id="commandResults" class="command-results"></div><div class="command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span></div></div></div>`}
 function mobileHTML(){return `<div class="mobile-topbar"><button class="icon-btn" id="mobileMenuBtn" aria-label="Open navigation">☰</button><div class="mobile-brand">second<span>brain</span></div><button class="icon-btn" id="mobileCommandBtn" aria-label="Open command palette">⌕</button></div><div class="mobile-overlay" id="mobileOverlay" hidden></div>`}
 function contextHTML(){return `<div class="app-topbar"><div class="context-bar" id="contextBar" aria-label="Current assistant context"><span class="context-dot" aria-hidden="true"></span><span id="contextSection">Personal Assistant</span><span class="context-sep">·</span><span id="connectionContext">Private workspace</span></div><div class="topbar-actions"><button class="command-trigger" id="commandTrigger" aria-label="Open command palette"><span>⌕ Search or run a command</span><kbd>⌘ K</kbd></button><button class="icon-btn" id="themeCycle" aria-label="Change theme">◐</button></div></div>`}
@@ -33,19 +33,19 @@ function paletteKeys(e){const items=[...document.querySelectorAll('.command-item
 function runCommand(section){closePalette();window.openSection?.(section)}
 function openPalette(){const b=document.getElementById('commandBackdrop');if(!b)return;b.hidden=false;requestAnimationFrame(()=>b.classList.add('open'));const i=document.getElementById('commandInput');if(i){i.value='';renderCommands();setTimeout(()=>i.focus(),0)}}
 function closePalette(){const b=document.getElementById('commandBackdrop');if(!b||b.hidden)return;b.classList.remove('open');setTimeout(()=>{b.hidden=true},120)}
-async function signOut(){try{await window.hatchable?.auth?.signOut?.()}catch{}location.replace('/login')}
+async function signOut(){try{await window.hatchable?.auth?.signOut?.()}catch{}location.replace('/welcome.html')}
 function openMobile(){document.querySelector('.sidebar')?.classList.add('mobile-open');const o=document.getElementById('mobileOverlay');if(o)o.hidden=false}
 function closeMobile(){document.querySelector('.sidebar')?.classList.remove('mobile-open');const o=document.getElementById('mobileOverlay');if(o)o.hidden=true}
 async function refreshApprovals(){try{const r=await fetch('/api/tools/approvals');if(!r.ok)return;const rows=await r.json();const n=Array.isArray(rows)?rows.filter(x=>x.status==='PENDING'&&(!x.expires_at||new Date(x.expires_at).getTime()>Date.now())).length:0;const b=document.getElementById('approvalBadge');if(b){b.textContent=n;b.hidden=!n}}catch{}}
-async function refreshAdminAccess(){try{const r=await fetch("/api/business/overview");if(!r.ok)return;document.querySelectorAll("[data-admin-only=\"true\"]").forEach(el=>el.hidden=false)}catch{}}
+/* admin access helper removed from user application */
 async function refreshConnections(){try{const [g,h]=await Promise.all([fetch('/api/google/status'),fetch('/api/github/status')]);const names=[];if(g.ok){const x=await g.json();if(x.connected)names.push('Google')}if(h.ok){const x=await h.json();if(x.connected)names.push('GitHub')}const el=document.getElementById('connectionContext');if(el)el.textContent=names.length?names.join(' + ')+' connected':'Private workspace'}catch{}}
 window.SecondBrainShell={mount,refreshApprovals,refreshConnections,setContext(label){const el=document.getElementById('contextSection');if(el)el.textContent=label}};
 async function boot(){
  try{
   const A=window.hatchable&&window.hatchable.auth;
-  if(!A||!A.getSession){location.replace('/welcome.html?next='+encodeURIComponent(location.pathname+location.search));return}
+  if(!A||!A.getSession){location.replace('/?next='+encodeURIComponent('/app.html'));return}
   const session=await A.getSession();
-  if(!session||!session.user){location.replace('/welcome.html?next='+encodeURIComponent(location.pathname+location.search));return}
+  if(!session||!session.user){location.replace('/?next='+encodeURIComponent('/app.html'));return}
   window.SecondBrainUser=session.user;
   const pilot=await fetch('/api/pilot/status',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});
   if(!pilot.ok){
@@ -57,7 +57,7 @@ async function boot(){
   mount();
   setTimeout(()=>window.SecondBrainPilot?.refresh?.(),250);
  }catch{
-  location.replace('/welcome.html?next='+encodeURIComponent(location.pathname+location.search));
+  location.replace('/?next='+encodeURIComponent('/app.html'));
  }
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
