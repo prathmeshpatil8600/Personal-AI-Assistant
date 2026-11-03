@@ -18,8 +18,19 @@
  function features(plan){
   const e=plan.entitlements||{},items=[];
   items.push(plan.monthly_units.toLocaleString("en-IN")+" monthly usage units");
+  if(plan.code==="FREE"){
+   items.push("AI Chat");
+   items.push("Today & Focus planning");
+   items.push("Tasks, Notes, Goals & Reminders");
+   items.push("Unified Search");
+   items.push("Productivity & Weekly Review");
+  }
   if(Number.isFinite(Number(e.max_documents)))items.push(e.max_documents+" documents");
   if(Number.isFinite(Number(e.max_memory_items)))items.push(e.max_memory_items+" saved memories");
+  if(plan.code==="FREE"){
+   items.push("Privacy controls & data export");
+   items.push("Guide & Help");
+  }
   ["google_integration","github_integration","scheduled_briefings","advanced_automation","premium_models"].forEach(k=>{if(e[k])items.push(featureLabel(k))});
   return items;
  }

@@ -46,7 +46,7 @@ function card(item){
 
 window.renderGuide=function(root){
  const items=allItems();
- root.innerHTML='<div class="top guide-top"><div><div class="eyebrow">Help & product guide</div><h1>Learn SecondBrain</h1><p class="label">Understand every section, what it is for, and the fastest way to get value from it.</p></div><button class="primary" id="guideStart">Start with Today</button></div>'+
+ root.innerHTML='<div class="top guide-top"><div><div class="eyebrow">Help & product guide</div><h1>Learn SecondBrain</h1><p class="label">Understand every section, what it is for, and the fastest way to get value from it.</p></div></div>'+
  '<section class="guide-start card"><div><div class="eyebrow">Recommended first session</div><h2>Five minutes to get set up</h2></div><ol><li><b>Ask one real question</b><span>Open Chat and use SecondBrain for something useful immediately.</span></li><li><b>Create one task</b><span>Give the assistant an action it can help you track.</span></li><li><b>Save one memory</b><span>Add a preference, goal or project fact you want reused later.</span></li><li><b>Try a document</b><span>Upload a small non-sensitive file and ask a focused question.</span></li><li><b>Connect tools when useful</b><span>Google and GitHub are optional; connect only what improves your workflow.</span></li></ol></section>'+
  '<div class="guide-toolbar"><input id="guideSearch" placeholder="Search features, e.g. documents, memory, approvals…"><div class="guide-chips">'+groups.map((g,i)=>'<button class="chip action" data-guide-group="'+i+'">'+esc(g.title)+'</button>').join("")+'</div></div>'+
  '<div id="guideSections">'+groups.map((g,i)=>'<section class="guide-section" data-guide-section="'+i+'"><div class="guide-section-head"><div><span class="eyebrow">'+esc(g.title)+'</span><h2>'+esc(g.title)+'</h2></div><span class="label">'+g.items.length+' '+(g.items.length===1?"section":"sections")+'</span></div><div class="guide-grid">'+g.items.map(x=>card({...x,group:g.title})).join("")+'</div></section>').join("")+'</div>'+
@@ -56,7 +56,7 @@ window.renderGuide=function(root){
 };
 
 function bindGuide(root,items){
- document.getElementById("guideStart").onclick=()=>window.openSection?.("briefing");
+ void 0;
  root.querySelectorAll("[data-open-guide]").forEach(b=>b.onclick=()=>window.openSection?.(b.dataset.openGuide));
  root.querySelectorAll("[data-guide-group]").forEach(b=>b.onclick=()=>document.querySelector('[data-guide-section="'+b.dataset.guideGroup+'"]')?.scrollIntoView({behavior:"smooth",block:"start"}));
  const input=document.getElementById("guideSearch");

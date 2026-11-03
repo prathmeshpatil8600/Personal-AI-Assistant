@@ -1,0 +1,10 @@
+.doc-upload-progress,.doc-upload-success,.doc-upload-error{margin:14px 0;padding:13px 14px;border-radius:12px;display:flex;align-items:center;gap:11px;border:1px solid var(--line);background:var(--surface-2)}
+.doc-upload-progress b,.doc-upload-success b,.doc-upload-error b{display:block;font-size:13px}
+.doc-upload-progress span,.doc-upload-success small,.doc-upload-error small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.doc-upload-spinner{width:18px;height:18px;border:2px solid var(--line-strong);border-top-color:var(--accent);border-radius:50%;animation:docspin .8s linear infinite;flex:none}
+.doc-upload-success{border-color:color-mix(in srgb,var(--success) 32%,var(--line));background:color-mix(in srgb,var(--success) 7%,var(--surface))}
+.doc-upload-success>span{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--success);color:#fff;font-weight:800;flex:none}
+.doc-upload-error{border-color:color-mix(in srgb,var(--danger) 32%,var(--line));background:color-mix(in srgb,var(--danger) 7%,var(--surface))}
+.doc-upload-error>span{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--danger);color:#fff;font-weight:800;flex:none}
+#docUploadLabel.is-busy{opacity:.62;pointer-events:none}
+@keyframes docspin{to{transform:rotate(360deg)}}
