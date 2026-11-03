@@ -33,11 +33,7 @@ const groups=[
   {id:"platform",icon:"⌘",name:"Developer & Platform",summary:"Use API and platform capabilities as you grow.",detail:"Provides foundations for scoped developer API keys, integration marketplace, organization branding and partner attribution. Some features require higher plans.",tips:["Revoke unused API keys.","Keep API secrets private.","Use scoped keys with the minimum permissions needed."]},
   {id:"settings",icon:"⚙",name:"Settings",summary:"Control preferences, privacy and account lifecycle.",detail:"Manage assistant preferences, theme, response style, integrations, data export, privacy requests, pilot feedback and account deletion controls.",tips:["Review privacy options before adding sensitive information.","Export your data when needed.","Use pilot feedback to report bugs or usability issues."]}
  ]},
- {title:"Admin-only",items:[
-  {id:"pilotops",icon:"◫",name:"Pilot Operations",summary:"Operate the closed pilot safely.",detail:"Admin dashboard for participant management, activation, retention, AI latency, cost, feedback and automatic stop conditions.",tips:["Add users only after they sign in once.","Do not expand the cohort when a stop condition triggers.","Review Day-1, Day-3 and Day-7 signals."]},
-  {id:"business",icon:"↗",name:"Business Analytics",summary:"Understand product economics and business performance.",detail:"Admin-only view of usage, plans, cost, revenue and commercial metrics used to validate pricing and sustainability.",tips:["Use real pilot data before changing pricing.","Watch cost per active user.","Separate test data from real customer metrics."]}
- ]}
-];
+ ];
 
 function allItems(){return groups.flatMap(g=>g.items.map(x=>({...x,group:g.title})))}
 function card(item){
