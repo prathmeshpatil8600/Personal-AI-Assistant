@@ -57,7 +57,7 @@ function toolSummary(steps){
 }
 
 function assistantMessageHTML(text,steps,{id=""}={}){
- return '<article class="message assistant-message" '+(id?'data-message-id="'+escapeHtml(id)+'"':'')+'><div class="assistant-avatar" aria-hidden="true"><span></span></div><div class="message-body">'+toolSummary(steps)+'<div class="rich-response">'+renderRichText(text)+'</div><div class="message-actions"><button class="message-action" type="button" data-copy-message>Copy</button><button class="message-action" type="button" data-shorter>Make shorter</button><button class="message-action" type="button" data-save-memory>Save</button><span class="message-spacer"></span><button class="message-action icon-only" type="button" data-feedback="up" aria-label="Helpful">♡</button><button class="message-action icon-only" type="button" data-feedback="down" aria-label="Not helpful">⌁</button></div></div></article>';
+ return '<article class="message assistant-message" '+(id?'data-message-id="'+escapeHtml(id)+'"':'')+'><div class="assistant-avatar" aria-hidden="true"><span></span></div><div class="message-body">'+toolSummary(steps)+'<div class="rich-response">'+renderRichText(text)+'</div><div class="message-actions"><button class="message-action" type="button" data-copy-message>Copy</button><button class="message-action" type="button" data-shorter>Make shorter</button><button class="message-action" type="button" data-save-memory>Save</button><button class="message-action" type="button" data-pin-context>Pin context</button><span class="message-spacer"></span><button class="message-action icon-only" type="button" data-feedback="up" aria-label="Helpful">♡</button><button class="message-action icon-only" type="button" data-feedback="down" aria-label="Not helpful">⌁</button></div></div></article>';
 }
 function userMessageHTML(text){return '<article class="message user-message"><div class="message-body"><div class="user-content">'+escapeHtml(text).replace(/\n/g,"<br>")+'</div></div></article>'}
 function thinkingHTML(){return '<article class="message assistant-message thinking-message"><div class="assistant-avatar thinking" aria-hidden="true"><span></span></div><div class="message-body"><div class="thinking-line"><span></span><span>Thinking</span></div><div class="thinking-sub">Checking context and deciding whether tools are needed…</div></div></article>'}
@@ -158,7 +158,9 @@ async function sendChat(e){
   appendAssistant(d.message,d.steps||[]);
   const needsApproval=(d.steps||[]).some(s=>(s.toolCalls||[]).some(c=>c?.result?.approval_required));
   window.SecondBrainLiving?.setPresence?.(needsApproval?"attention":"calm",needsApproval?"approval needed":"ready");
-  status.textContent=(d.provider||"AI")+" · "+(d.model||"ready");
+  const contextLabel=d.context?.mode==="optimized"?"Context optimized":"Context full";
+  const memoryLabel=Number(d.context?.memories||0)>0?" · "+d.context.memories+" memories":"";
+  status.textContent=(d.provider||"AI")+" · "+(d.model||"ready")+" · "+contextLabel+memoryLabel;
   loadConversations();window.SecondBrainShell?.refreshApprovals?.();
  }catch(err){document.querySelector(".thinking-message")?.remove();appendAssistant("I couldn't complete that request. "+err.message,[]);status.textContent="Error";window.SecondBrainLiving?.setPresence?.("attention","needs attention")}
  finally{send.disabled=false;input.focus()}
@@ -175,6 +177,7 @@ async function handleMessageAction(e){
  else if(btn.matches(".copy-code")){await navigator.clipboard.writeText(btn.closest(".code-card")?.querySelector("code")?.innerText||"");btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy",1200)}
  else if(btn.matches("[data-shorter]")){quickChat("Make your previous answer shorter and keep only the key points.")}
  else if(btn.matches("[data-save-memory]")){await saveAssistantMemory(plain,btn)}
+ else if(btn.matches("[data-pin-context]")){await pinConversationContext(plain,btn)}
  else if(btn.matches("[data-feedback]")){btn.classList.toggle("selected");showToast(btn.dataset.feedback==="up"?"Marked helpful":"Feedback noted")}
  else if(btn.matches("[data-open-approvals]")){openSection("approvals")}
 }
@@ -187,6 +190,16 @@ async function saveAssistantMemory(text,btn){
   btn.textContent="Saved";showToast("Saved to Memory")
  }catch(e){showToast(e.message)}
  finally{setTimeout(()=>{btn.disabled=false;btn.textContent="Save"},1500)}
+}
+
+async function pinConversationContext(text,btn){
+ if(!text||!activeConversation)return;
+ btn.disabled=true;
+ try{
+  await chatApi("/conversations/context-pins",{method:"POST",body:JSON.stringify({conversation_id:activeConversation,label:"Pinned assistant context",content:text.slice(0,6000)})});
+  btn.textContent="Pinned";showToast("Kept in conversation context")
+ }catch(e){showToast(e.message)}
+ finally{setTimeout(()=>{btn.disabled=false;btn.textContent="Pin context"},1600)}
 }
 
 function quickChat(text){const input=document.getElementById("chatInput");if(input){input.value=text;autoGrow(input);input.focus();renderSlashMenu(text)}}

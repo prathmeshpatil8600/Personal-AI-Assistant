@@ -119,6 +119,10 @@ write = "own"
 read = "own"
 write = "own"
 
+[db.tables.conversation_context_pins]
+read = "own"
+write = "own"
+
 [db.tables.tasks]
 read = "own"
 write = "own"
