@@ -22,7 +22,7 @@ async function windowMetrics(days){
     count(*) FILTER (WHERE status='ERROR')::int errors,
     count(*) FILTER (WHERE fallback_used=true)::int fallbacks
    FROM ai_runs
-   WHERE created_at>=now()-($1::interval)`,[interval]),
+   WHERE created_at>=now()-($1::interval) AND COALESCE(purpose,'') NOT LIKE 'benchmark:%'`,[interval]),
   db.query(`SELECT provider,count(*)::int requests,
     COALESCE(sum(input_tokens),0)::bigint input_tokens,
     COALESCE(sum(output_tokens),0)::bigint output_tokens,
@@ -31,14 +31,14 @@ async function windowMetrics(days){
     percentile_cont(0.95) WITHIN GROUP (ORDER BY latency_ms)::int p95_latency_ms,
     count(*) FILTER (WHERE status='ERROR')::int errors
    FROM ai_runs
-   WHERE created_at>=now()-($1::interval) AND provider IS NOT NULL
+   WHERE created_at>=now()-($1::interval) AND COALESCE(purpose,'') NOT LIKE 'benchmark:%' AND provider IS NOT NULL
    GROUP BY provider ORDER BY requests DESC`,[interval]),
   db.query(`SELECT COALESCE(metadata->>'optimization_lane','UNKNOWN') lane,count(*)::int requests,
     COALESCE(sum(input_tokens),0)::bigint input_tokens,
     COALESCE(sum(output_tokens),0)::bigint output_tokens,
     COALESCE(sum(estimated_cost_microusd) FILTER (WHERE priced),0)::bigint cost_microusd
    FROM usage_events
-   WHERE event_type='ai_generation' AND occurred_at>=now()-($1::interval)
+   WHERE event_type='ai_generation' AND COALESCE(purpose,'') NOT LIKE 'benchmark:%' AND occurred_at>=now()-($1::interval)
    GROUP BY 1 ORDER BY requests DESC`,[interval]),
   db.query(`SELECT
     COALESCE(sum(deterministic_responses),0)::bigint deterministic_responses,
@@ -61,12 +61,12 @@ async function windowMetrics(days){
    FROM usage_events
    WHERE event_type='ai_generation' AND occurred_at>=now()-($1::interval)`,[interval]),
   db.query(`SELECT count(DISTINCT user_id)::int active_users
-   FROM usage_events WHERE event_type='ai_generation' AND occurred_at>=now()-($1::interval)`,[interval]),
+   FROM usage_events WHERE event_type='ai_generation' AND COALESCE(purpose,'') NOT LIKE 'benchmark:%' AND occurred_at>=now()-($1::interval)`,[interval]),
   db.query(`SELECT COALESCE(purpose,'unknown') purpose,count(*)::int requests,
     round(avg(input_tokens))::int avg_input_tokens,
     round(avg(output_tokens))::int avg_output_tokens,
     round(avg(latency_ms))::int avg_latency_ms
-   FROM ai_runs WHERE created_at>=now()-($1::interval)
+   FROM ai_runs WHERE created_at>=now()-($1::interval) AND COALESCE(purpose,'') NOT LIKE 'benchmark:%'
    GROUP BY COALESCE(purpose,'unknown') ORDER BY requests DESC LIMIT 15`,[interval])
  ]);
  const r=runs.rows[0]||{},o=opt.rows[0]||{},c=cost.rows[0]||{},a=active.rows[0]||{};
