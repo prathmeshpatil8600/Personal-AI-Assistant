@@ -59,7 +59,7 @@ async function windowMetrics(days){
     count(*) FILTER (WHERE priced)::int priced_events,
     count(*) FILTER (WHERE NOT priced)::int unpriced_events
    FROM usage_events
-   WHERE event_type='ai_generation' AND occurred_at>=now()-($1::interval)`,[interval]),
+   WHERE event_type='ai_generation' AND COALESCE(purpose,'') NOT LIKE 'benchmark:%' AND occurred_at>=now()-($1::interval)`,[interval]),
   db.query(`SELECT count(DISTINCT user_id)::int active_users
    FROM usage_events WHERE event_type='ai_generation' AND COALESCE(purpose,'') NOT LIKE 'benchmark:%' AND occurred_at>=now()-($1::interval)`,[interval]),
   db.query(`SELECT COALESCE(purpose,'unknown') purpose,count(*)::int requests,
