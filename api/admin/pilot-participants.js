@@ -15,6 +15,14 @@ export default async function(req,res){
   uid=u.id;
  }
  if(!uid)return res.status(400).json({error:"user_id or email is required"});
+ if(req.method!=="DELETE"){
+  const existing=await db.query("SELECT cohort,status FROM pilot_participants WHERE user_id=$1",[uid]);
+  const isExisting=existing.rows.length>0&&existing.rows[0].cohort==="PILOT_1"&&["INVITED","ACTIVE"].includes(existing.rows[0].status);
+  if(!isExisting){
+   const count=Number((await db.query("SELECT count(*)::int n FROM pilot_participants WHERE cohort='PILOT_1' AND status IN ('INVITED','ACTIVE')")).rows[0]?.n||0);
+   if(count>=5)return res.status(409).json({error:"pilot_wave_full",message:"Wave 1 is capped at five invited/active users until the Day-7 review."});
+  }
+ }
  if(req.method==="DELETE"){
   await db.query("DELETE FROM user_onboarding WHERE user_id=$1",[uid]).catch(()=>{});
   const removed=(await db.query("DELETE FROM pilot_participants WHERE user_id=$1 RETURNING user_id",[uid])).rows[0];

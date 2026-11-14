@@ -16,6 +16,8 @@ export default async function(req,res){
  }
  const action=String(req.body?.action||"").toLowerCase();
  if(action==="add_participant"){
+  const count=Number((await db.query("SELECT count(*)::int n FROM pilot_participants WHERE cohort='PILOT_1' AND status IN ('INVITED','ACTIVE')")).rows[0]?.n||0);
+  if(count>=5)return res.status(409).json({error:"pilot_wave_full",message:"Wave 1 is capped at five invited/active users. Complete the Day-7 review before expanding."});
   const email=String(req.body?.email||"").trim().toLowerCase();
   const u=(await db.query("SELECT id,email,name FROM users WHERE lower(email)=lower($1) LIMIT 1",[email])).rows[0];
   if(!u)return res.status(404).json({error:"user_not_found",message:"User must sign in once before being added."});
