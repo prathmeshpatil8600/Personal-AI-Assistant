@@ -1,6 +1,4 @@
 (function(){
- let modalResolve=null;
-
  function ensureUI(){
   if(!document.getElementById("globalUiModal")){
    document.body.insertAdjacentHTML("beforeend",'<div class="modal-backdrop polish-modal" id="globalUiModal" hidden><section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="globalUiTitle"><div class="section-head"><div><div class="eyebrow" id="globalUiEyebrow">SecondBrain</div><h2 id="globalUiTitle">Action</h2></div><button class="icon-btn" id="globalUiClose" aria-label="Close">×</button></div><form id="globalUiForm" class="memory-form"><div id="globalUiFields"></div><div class="modal-actions"><button type="button" class="ghost" id="globalUiCancel">Cancel</button><button class="primary" id="globalUiSubmit">Save</button></div></form></section></div>');
@@ -31,8 +29,7 @@
   modal.hidden=false;
   const first=form.querySelector("input,textarea,select");setTimeout(()=>first?.focus(),0);
   return new Promise(resolve=>{
-   modalResolve=resolve;
-   const close=v=>{modal.hidden=true;modalResolve=null;resolve(v)};
+   const close=v=>{modal.hidden=true;resolve(v)};
    document.getElementById("globalUiClose").onclick=()=>close(null);
    document.getElementById("globalUiCancel").onclick=()=>close(null);
    modal.onclick=e=>{if(e.target===modal)close(null)};

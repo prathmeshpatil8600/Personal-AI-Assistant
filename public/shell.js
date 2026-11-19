@@ -37,7 +37,6 @@ async function signOut(){try{await window.hatchable?.auth?.signOut?.()}catch{}lo
 function openMobile(){document.querySelector('.sidebar')?.classList.add('mobile-open');const o=document.getElementById('mobileOverlay');if(o)o.hidden=false}
 function closeMobile(){document.querySelector('.sidebar')?.classList.remove('mobile-open');const o=document.getElementById('mobileOverlay');if(o)o.hidden=true}
 async function refreshApprovals(){try{const r=await fetch('/api/tools/approvals');if(!r.ok)return;const rows=await r.json();const n=Array.isArray(rows)?rows.filter(x=>x.status==='PENDING'&&(!x.expires_at||new Date(x.expires_at).getTime()>Date.now())).length:0;const b=document.getElementById('approvalBadge');if(b){b.textContent=n;b.hidden=!n}}catch{}}
-/* admin access helper removed from user application */
 async function refreshConnections(){try{const [g,h]=await Promise.all([fetch('/api/google/status'),fetch('/api/github/status')]);const names=[];if(g.ok){const x=await g.json();if(x.connected)names.push('Google')}if(h.ok){const x=await h.json();if(x.connected)names.push('GitHub')}const el=document.getElementById('connectionContext');if(el)el.textContent=names.length?names.join(' + ')+' connected':'Private workspace'}catch{}}
 window.SecondBrainShell={mount,refreshApprovals,refreshConnections,setContext(label){const el=document.getElementById('contextSection');if(el)el.textContent=label}};
 async function boot(){
